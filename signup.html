@@ -16,14 +16,23 @@
 </nav>
 
 <body>
-    <h1>Welcome to Wellesley Spots</h1>
+    <h1>Sign Up</h1>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search for a spot...">
-        <button id="searchButton">Search</button>
+    <div class="signup-container">
+        <form id="signupForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Sign Up</button>
+        </form>
     </div>
-    <div id="resultsContainer"></div>
-    
+
     <script src="script.js"></script>
-</body>
+
 </html>
