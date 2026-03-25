@@ -37,8 +37,19 @@ const REVIEWS = 'reviews';
 const COMMENTS = 'comments';
 
 app.get('/', (req, res) => {
-    return res.render('./reviews/reviewpage.ejs');
+    return res.render('home.ejs');
 });
 
+app.get('/reviews', (req, res) => {
+    return res.render('reviews.ejs');
+});
 
+const serverPort = cs304.getPort(8080);
 
+// this is last, because it never returns
+app.listen(serverPort, function() {
+    console.log(`listening on ${serverPort}`);
+    console.log(`visit http://cs.wellesley.edu:${serverPort}/`);
+    console.log(`or http://localhost:${serverPort}/`);
+    console.log('^C to exit');
+});
