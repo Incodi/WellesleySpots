@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wellesley Spots</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav class="navbar">
@@ -17,15 +17,15 @@
     </nav>
 
     <main class="page">
-        <h1>Welcome to Wellesley Spots</h1>
+        <h1>My Collections</h1>
 
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for a spot...">
-            <button id="searchButton">Search</button>
-        </div>
-        <div id="resultsContainer"></div>
+        <section class="profile-container">
+            <h2>Saved Spots</h2>
+            <ul id="collectionsList"></ul>  <!-- list to add onto -->
+            <p id="collectionsMessage" class="message"></p>
+        </section>
     </main>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
