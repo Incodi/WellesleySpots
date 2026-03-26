@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8" />
     <title>Reviews</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="./../public/style.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
     <h1>Welcome!</h1>
-    <!-- load local js -->
-    <script src="/main.js"></script>
+    <div id="map"
+        style="
+        width: 700px;
+        height: 500px;
+        border-radius: 20px;
+        padding: 1em;">
+    </div>
+    <script src="/reviews.js" defer></script>
 </body>
 </html>
