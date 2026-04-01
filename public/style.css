@@ -20,24 +20,10 @@ h2 {
     color: var(--color-green);
 }
 
-a {
-    color: var(--color-green-dark);
-}
-
-a:hover {
-    background-color: var(--color-green-link);
-    border-radius: 4px;
-}
-
 .navbar {
-	background-color: #333333;
-	padding: 10px;
-}
-
-.nav-menu {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
+	background-color: var(--color-green);
+	padding: .25em;
+	border-radius: 10px;
 }
 
 .nav-menu li {
@@ -47,11 +33,13 @@ a:hover {
 
 .nav-menu a {
 	color: white;
+	padding: .25em;
+	border-radius: 10px;
 	text-decoration: none;
 }
 
 .nav-menu a:hover {
-	text-decoration: underline;
+	background-color: var(--color-green-dark);
 }
 
 /* page stuffs */
@@ -76,10 +64,6 @@ a:hover {
 	padding: 15px;
 	border: 1px solid #dddddd;
 	background-color: #fafafa;
-}
-
-form {
-	margin-top: 10px;
 }
 
 /* signup stuffs */
@@ -144,7 +128,8 @@ form {
     padding: .5em;
     border-radius: 10px;
     transition: .5s;
-	width: 25em;
+	width: 500px;
+	height: 900px;
 }
 
 form select, form input, form textarea {
@@ -154,7 +139,6 @@ form select, form input, form textarea {
 	margin-top: .5em;
 	padding: .5em;
     border: none;
-    cursor: pointer;
 }
 
 form textarea {
@@ -169,7 +153,46 @@ form input[type="submit"] {
 	width: 30%;
 }
 
+select option:checked {
+	background-color: var(--color-green-link);
+}
+input, textarea, select {
+	cursor: pointer;
+}
 
 input[type="submit"]:hover {
     background-color: var(--color-green-dark);
+}
+
+.numbers {
+	width: 20%;
+}
+
+.stars {
+	direction: rtl;
+	display: inline-block;
+	font-size: 2em;
+}
+
+.stars input[type="radio"] {
+	display: none;
+}
+
+.stars label {
+	color: var(--color-green);
+	transition: color 0.2s;
+}
+
+/* make current hovered one yellow, stars before it yellow, and maintain yellow once clicked */
+.stars label:hover, .stars label:hover ~ label, .stars input[type="radio"]:checked ~ label {
+	color: #ffd84d;
+}
+
+.reviews-page {
+	display: flex;
+	gap: 1em;
+	align-items: flex-start;
+}
+#create_review_form {
+	flex: 1;
 }

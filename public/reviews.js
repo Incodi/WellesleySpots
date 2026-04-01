@@ -1,4 +1,5 @@
 const map = L.map('map').setView([42.293243, -71.305604], 16);
+map.dragging.disable();
 
 const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
