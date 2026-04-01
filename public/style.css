@@ -8,11 +8,26 @@ HTML {
 }
 
 body {
-	margin: 0;
+	margin: 1em;
 	color: #222222;
 }
 
-/* nav stuffs */
+h1 {
+    color: var(--color-green-dark);
+}
+
+h2 {
+    color: var(--color-green);
+}
+
+a {
+    color: var(--color-green-dark);
+}
+
+a:hover {
+    background-color: var(--color-green-link);
+    border-radius: 4px;
+}
 
 .navbar {
 	background-color: #333333;
@@ -121,4 +136,40 @@ button:hover {
 .message {
 	margin-top: 10px;
 	font-weight: bold;
+}
+
+
+form {
+    background-color: var(--color-green-light);
+    padding: .5em;
+    border-radius: 10px;
+    transition: .5s;
+	width: 25em;
+}
+
+form select, form input, form textarea {
+    border-radius: 10px;
+    background-color: var(--color-green);
+    color: white;
+	margin-top: .5em;
+	padding: .5em;
+    border: none;
+    cursor: pointer;
+}
+
+form textarea {
+	resize: none;
+}
+
+form select, form input {
+	width: 50%;
+}
+
+form input[type="submit"] {
+	width: 30%;
+}
+
+
+input[type="submit"]:hover {
+    background-color: var(--color-green-dark);
 }

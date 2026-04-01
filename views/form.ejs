@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lookup App</title>
+    <meta name="author" content="Gloria Pulido">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <form class="search" method="GET" action="/search/">
+        <h2>Create your Review</h2>
+        <p><label>Title: <input type="text" required name="title"></label></p>
+        <p><label>Location Name: <input type="text" required name="location_name"></label></p>
+        <p><label>Review:<br><textarea cols="40" rows="10" required name="review"></textarea></label></p>
+        <p><label>
+            X Coordinates: <input type="number" required name="x_coordinates" step="any"> 
+            Y Coordinates: <input type="number" required name="y_coordinates" step="any">
+        </label></p>
+        <label for="tags">Add Tags:</label>
+        <select name="tags" multiple>
+            <option value="noisy">noisy</option>
+            <option value="quiet">quiet</option>
+            <option value="empty">empty</option>
+        </select>
+        </label>
+        <p><label>Rating: <input type="number" required name="rating" min="0" max="10" step="0.5"></label></p>
+        <input type="submit" value="Add Photo">
+        <input type="submit" value="Submit"></p>
+    </form>
+</body>
+</html>
