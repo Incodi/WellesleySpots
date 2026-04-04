@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Lookup App</title>
-    <meta name="author" content="Gloria Pulido">
+    <title>Review Creation</title>
+    <meta name="author" content="Gloria">
     <link rel="stylesheet" href="/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-    <form class="search" method="GET" action="/search/">
+    <form class="create_review" method="POST" action="/review/">
+        <h1>Create Review</h1>
+        <p>Manually enter your coordinates or click on map to have coordinates entered in form.</p>
         <p><label>Title: <input type="text" required name="title"></label></p>
         <p><label>Location Name: <input type="text" required name="location_name"></label></p>
         <p><label>Review:<br><textarea cols="40" rows="10" required name="review"></textarea></label></p>
@@ -16,7 +18,7 @@
             X Coordinates: <input class="numbers" type="number" required name="x_coordinates" step="any"> 
             Y Coordinates: <input class="numbers" type="number" required name="y_coordinates" step="any">
         </label></p>
-        <label for="tags">Add Tags:</label>
+        <p><label for="tags">Tags:</label></p>
         <select name="tags" multiple>
             <option value="noisy">loud</option>
             <option value="quiet">quiet</option>
@@ -41,7 +43,7 @@
             </span>
             </label>
         </p>
-        <input type="submit" value="Add Photo">
+        <input type="button" value="Add Photo">
         <input type="submit" value="Submit"></p>
     </form>
 </body>

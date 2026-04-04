@@ -4,9 +4,6 @@ const express = require('express');
 const morgan = require('morgan');
 const serveStatic = require('serve-static');
 const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session');
-
-// our modules loaded from cwd
 
 const { Connection } = require('./connection');
 const cs304 = require('./cs304');
@@ -15,22 +12,20 @@ const cs304 = require('./cs304');
 
 const app = express();
 
-// Morgan reports the final status code of a request's response
 app.use(morgan('tiny'));
-
 app.use(cs304.logStartRequest);
 
 // This handles POST data
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(cs304.logRequestData);  // tell the user about any request data
+app.use(cs304.logRequestData);
 
 app.use(serveStatic('public'));
 app.set('view engine', 'ejs');
 
 const mongoUri = cs304.getMongoUri();
-const DB = 'WellesleySpots';
+const DB = 'wellesleyspots';
 const USERS = 'users';
 const LOCATIONS = 'locations';
 const REVIEWS = 'reviews';
@@ -40,8 +35,45 @@ app.get('/', (req, res) => {
     return res.render('home.ejs');
 });
 
-app.get('/reviews', (req, res) => {
-    return res.render('reviews.ejs');
+app.get('/reviews', async (req, res) => {
+    const db = await Connection.open(mongoUri, DB);
+    const reviews = await db.collection(REVIEWS).find({}).toArray();
+    return res.render('reviews.ejs', { reviews });
+});
+
+let reviewIdCounter = 1;
+app.post('/review/', async (req, res) => {
+    const reviewId = reviewIdCounter++;
+    const review = {
+        id: reviewId,
+        title: req.body.title,
+        location_name: req.body.location_name,
+        review: req.body.review,
+        x_coordinates: req.body.x_coordinates,
+        y_coordinates: req.body.y_coordinates,
+        tags: req.body.tags,
+        rating: req.body.rating
+    };
+
+    const db = await Connection.open(mongoUri, DB);
+    await db.collection(REVIEWS).insertOne(review);
+    res.json(review);
+});
+
+app.get('/home', (req, res) => {
+    return res.render('home.ejs');
+});
+
+app.get('/profile', (req, res) => {
+    return res.render('profile.ejs');
+});
+
+app.get('/collections', (req, res) => {
+    return res.render('collections.ejs');
+});
+
+app.get('/signup', (req, res) => {
+    return res.render('signup.ejs');
 });
 
 const serverPort = cs304.getPort(8080);
