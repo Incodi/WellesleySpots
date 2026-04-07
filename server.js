@@ -32,12 +32,15 @@ const REVIEWS = 'reviews';
 const COMMENTS = 'comments';
 
 // TODO: documentation
-app.get('/', (req, res) => {
-    return res.render('home.ejs');
+app.get('/', (req, res) => { 
+  return res.redirect('/home');
 });
 
 app.get('/home', (req, res) => {
-    return res.render('home.ejs');
+  return res.render('home', {
+    currentPath: '/home',
+    userId: req.session.userId || null
+  });
 });
 
 app.get('/profile', (req, res) => {
@@ -49,7 +52,34 @@ app.get('/collections', (req, res) => {
 });
 
 app.get('/signup', (req, res) => {
-    return res.render('signup.ejs');
+  return res.render('signup', {
+    currentPath: '/signup',
+    userId: req.session.userId || null
+  });
+});
+
+app.get('/login', (req, res) => {
+  return res.redirect('/signup');
+});
+
+app.get('/profile', (req, res) => { // redirects to signup if no user ID
+  if (!req.session.userId) {
+    return res.redirect('/signup');
+  }
+  return res.render('profile', {
+    currentPath: '/profile',
+    userId: req.session.userId
+  });
+});
+
+app.get('/collections', (req, res) => { // redirects to signup if no user ID
+  if (!req.session.userId) {
+    return res.redirect('/signup');
+  }
+  return res.render('collections', {
+    currentPath: '/collections',
+    userId: req.session.userId
+  });
 });
 
 app.get('/reviews', async (req, res) => {
