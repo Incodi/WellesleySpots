@@ -4,6 +4,8 @@ const express = require('express');
 const morgan = require('morgan');
 const serveStatic = require('serve-static');
 const bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
+const flash = require('express-flash');
 
 const { Connection } = require('./connection');
 const cs304 = require('./cs304');
@@ -21,6 +23,13 @@ app.use(bodyParser.json());
 
 app.use(cs304.logRequestData);
 
+app.use(cookieSession({
+  name: 'session',
+  keys: [cs304.randomString(20)],
+  maxAge: 24 * 60 * 60 * 1000
+}));
+app.use(flash());
+
 app.use(serveStatic('public'));
 app.set('view engine', 'ejs');
 
@@ -32,24 +41,113 @@ const REVIEWS = 'reviews';
 const COMMENTS = 'comments';
 
 // TODO: documentation
-app.get('/', (req, res) => {
-    return res.render('home.ejs');
+app.get('/', (req, res) => { 
+  return res.redirect('/home');
 });
 
 app.get('/home', (req, res) => {
-    return res.render('home.ejs');
-});
-
-app.get('/profile', (req, res) => {
-    return res.render('profile.ejs');
-});
-
-app.get('/collections', (req, res) => {
-    return res.render('collections.ejs');
+  return res.render('home', {
+    currentPath: '/home',
+    userId: req.session.userId || null
+  });
 });
 
 app.get('/signup', (req, res) => {
-    return res.render('signup.ejs');
+  return res.render('signup', {
+    currentPath: '/signup',
+    userId: req.session.userId || null,
+    username: req.session.username || null,
+    email: req.session.email || null,
+    flashError: req.flash('error'),
+    flashInfo: req.flash('info')
+  });
+});
+
+app.get('/login', (req, res) => {
+  return res.redirect('/signup');
+});
+
+app.post('/register', async (req, res) => {
+  const username = String(req.body.username || '').trim();
+  const password = String(req.body.password || '').trim();
+
+  if (!username || !password) {
+    req.flash('error', 'Username and password are required.');
+    return res.redirect('/signup');
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const usersCol = db.collection(USERS);
+  const existingUsers = await usersCol.find({ username: username }).toArray();
+
+  if (existingUsers.length > 0) {
+    req.flash('error', 'A user with that username already exists.');
+    return res.redirect('/signup');
+  }
+
+  const results = await usersCol.insertOne({
+    username,
+    password
+  });
+
+  req.session.username = username;
+  req.session.userId = results.insertedId.toString();
+  req.flash('info', 'Account created. You are now logged in.');
+  return res.redirect('/home');
+});
+
+app.post('/login', async (req, res) => {
+  const username = String(req.body.username || '').trim();
+  const password = String(req.body.password || '').trim();
+
+  if (!username || !password) {
+    req.flash('error', 'Username and password are required.');
+    return res.redirect('/signup');
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const usersCol = db.collection(USERS);
+  const existingUser = await usersCol.findOne({ username: username });
+
+  if (!existingUser) {
+    req.flash('error', 'Username not found');
+    return res.redirect('/signup');
+  }
+
+  if (existingUser.password !== password) {
+    req.flash('error', 'Incorrect password');
+    return res.redirect('/signup');
+  }
+
+  req.session.username = existingUser.username;
+  req.session.userId = existingUser._id.toString();
+  req.flash('info', 'Login successful.');
+  return res.redirect('/home');
+});
+
+app.post('/logout', (req, res) => {
+  req.session = null;
+  return res.redirect('/signup');
+});
+
+app.get('/profile', (req, res) => { // redirects to signup if no user ID
+  if (!req.session.userId) {
+    return res.redirect('/signup');
+  }
+  return res.render('profile', {
+    currentPath: '/profile',
+    userId: req.session.userId
+  });
+});
+
+app.get('/collections', (req, res) => { // redirects to signup if no user ID
+  if (!req.session.userId) {
+    return res.redirect('/signup');
+  }
+  return res.render('collections', {
+    currentPath: '/collections',
+    userId: req.session.userId
+  });
 });
 
 app.get('/searches', (req, res) => {
