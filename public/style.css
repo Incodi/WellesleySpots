@@ -42,6 +42,40 @@ h2 {
 	background-color: var(--color-green-dark);
 }
 
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-menu .dropdown_button {
+  background-color: var(--color-green);
+}
+
+.dropdown_content {
+  display: none;
+  position: absolute;
+  background-color: var(--color-green);
+  padding: .25em;
+}
+
+.dropdown_content a {
+  display: block;
+}
+
+.dropdown_content a:hover {
+	background-color: var(--color-green-dark);
+}
+
+.dropdown:hover .dropdown_content {
+	display: block;
+	border-radius: 10px;
+	width: 150px;
+}
+
+.dropdown:hover .dropdown_button {
+	background-color: var(--color-green-dark);
+}
+
 /* page stuffs */
 
 .page {
@@ -133,7 +167,12 @@ form, #review, #comments {
 	margin: 1em;
  }
 
-.create_review, .filter_reviews {
+.filter_reviews {
+	width: 500px;
+	height: 450px;
+}
+
+.create_review {
 	width: 500px;
 	height: 900px;
 }

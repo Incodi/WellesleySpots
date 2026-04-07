@@ -9,10 +9,18 @@
 </head>
 <body>
     <h1>Search Results</h1>
+    <% if (results && results.length > 0) { %>
     <ol>
-    <% reviews.forEach((elt) => { %>
-        <li><a href="/review/<%= elt.id %>"><%= elt.title %></a></li>
-    <% }); %>
+        <% results.forEach((elt) => { %>
+            <li>
+                <a href="/review/<%= elt.id %>">
+                    <%= elt.title %>
+                </a>
+            </li>
+        <% }); %>
     </ol>
+<% } else { %>
+    <p>No results found</p>
+<% } %>
 </body>
 </html>

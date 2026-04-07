@@ -12,22 +12,14 @@
 <body>
     <%- include ('navbar') %>
     <h1>Explore Reviews</h1>
-    <div class="reviews_page">
-        <div id="map"
-            style="
-            width: 900px;
-            height: 915px;
-            border-radius: 20px;">
-        </div>
-        <div>
-            <div id="create_section">
-                <%- include('form') %>
-            </div>
+    <div>
+        <div id="search_section">
+            <%- include('search') %>
         </div>
     </div>
-    <script id="reviews_data" type="application/json">
-        <%- JSON.stringify(reviews) %>
-    </script>
-    <script src="/reviews.js" defer></script>
+    <% if (results) { %>
+        <%- include('list') %>
+    <% } %>
+    </div>
 </body>
 </html>

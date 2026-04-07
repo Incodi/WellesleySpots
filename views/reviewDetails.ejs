@@ -11,10 +11,18 @@
     <%- include ('navbar') %>
     <div id="review">
         <h1><%= full_review.title %></h1>
-        <h2><%= full_review.location_name %></h2>
-        <h2><%= full_review.rating %> Stars</h2>
+        <h2>Location</h2>
+        <p><%= full_review.location_name %></p>
+        <h2>Rating</h2>
+        <p><%= full_review.rating %> Stars</p>
+        <h2>Review</h2>
         <p><%= full_review.review %></p>
-        <p><%= full_review.tags %></p>
+        <h2>Tags</h2>
+        <ul>
+            <% (full_review.tags ? full_review.tags.split(',') : []).forEach(tag => { %>
+        <li><%= tag.trim() %></li>
+    <% }) %>
+        </ul>
     </div>
     <div>
         <%- include ('comments') %>

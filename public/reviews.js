@@ -18,29 +18,18 @@ $(document).ready(function() {
     map.on('click', onMapClick);
 
     const reviews = JSON.parse($('#reviews_data').html() || '[]');
-    reviews.forEach(function(r) {
-        const xCoordinates = parseFloat(r.x_coordinates);
-        const yCoordinates = parseFloat(r.y_coordinates);
+    reviews.forEach(function(review) {
+        const xCoordinates = parseFloat(review.x_coordinates);
+        const yCoordinates = parseFloat(review.y_coordinates);
             L.marker([xCoordinates, yCoordinates])
                 .addTo(map)
                 .bindPopup(
-                    `<b>${r.title}</b><br>
-                     <i>${r.location_name}</i><br>
-                     ${r.review}<br>
-                     ${r.rating} stars<br>
-                     <a href="/review/${r.id}">View Details</a>`
+                    `<b>${review.title}</b><br>
+                     <i>${review.location_name}</i><br>
+                     ${review.review}<br>
+                     ${review.rating} stars<br>
+                     <a href="/review/${review.rr}">View Details</a>`
                 );
-    });
-
-    let action = $('#action').val();
-
-    $('#create_section').toggle(action === 'create');
-    $('#search_section').toggle(action === 'search');
-
-    $('#action').on('change', function() {
-        action = $(this).val();
-        $('#create_section').toggle(action === 'create');
-        $('#search_section').toggle(action === 'search');
     });
 
     $('.createreview').on('submit', function(e) {
@@ -62,7 +51,7 @@ $(document).ready(function() {
                              <i>${review.location_name}</i><br>
                              ${review.review}<br>
                              ${review.rating} stars<br>
-                             <a href="/review/${review.id}">View Details</a>`
+                             <a href="/review/${review.rr}">View Details</a>`
                         )
                         .openPopup();
             }

@@ -8,7 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-    <form class="filter_reviews" method="GET" action="/search/">
+    <form class="filter_reviews" method="GET" action="/search">
         <h1>Filter Reviews</h1>
         <p>Enter at least one field to search.</p>
         <p><label>Location: <input type="text" name="location"></label></p>
@@ -18,13 +18,12 @@
             <option value="noisy">loud</option>
             <option value="quiet">quiet</option>
             <option value="empty">empty</option>
-            <option value="empty">busy</option>
-            <option value="empty">clean</option>
-            <option value="empty">natural light</option>
+            <option value="busy">busy</option>
+            <option value="clean">clean</option>
+            <option value="natural light">natural light</option>
         </select>
         </label>
         <input type="submit" value="Search"></p>
     </form>
-    <%- include('list') %>
 </body>
 </html>

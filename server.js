@@ -52,17 +52,21 @@ app.get('/signup', (req, res) => {
     return res.render('signup.ejs');
 });
 
+app.get('/searches', (req, res) => {
+    return res.render('searches.ejs', { results: null });
+});
+
 app.get('/reviews', async (req, res) => {
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });
 });
 
+let review_rr_counter = 1;
 app.post('/reviews/', async (req, res) => {
-    let reviewIdCounter = 1;
-    const reviewId = reviewIdCounter++;
+    const reviewId = review_rr_counter++;
     const review = {
-        id: reviewId, // TODO: review id
+        rr: reviewId, // like nm or tt
         title: req.body.title,
         location_name: req.body.location_name,
         review: req.body.review,
@@ -74,27 +78,34 @@ app.post('/reviews/', async (req, res) => {
 
     const db = await Connection.open(mongoUri, DB);
     await db.collection(REVIEWS).insertOne(review);
+    res.redirect('/reviews');
 });
 
 app.get('/search', async (req, res) => {
-    const location_name = req.query.location;
-    // const rating = req.query.rating;
-    // const tags = req.query.tags; // TODO: handle tags search
+    const { location, rating, filter_tags } = req.query;
+
     const db = await Connection.open(mongoUri, DB);
-    const reviews = await db.collection(REVIEWS).find({location_name: location_name}).toArray();
-    return res.render('list.ejs', { reviews });
+
+    let query = {};
+    if (location) query.location_name = location;
+    if (rating) query.rating = rating;
+
+    if (filter_tags) {
+        const tagsArray = Array.isArray(filter_tags) ? filter_tags : [filter_tags];
+        query.tags = { $in: tagsArray };
+    }
+
+    const reviews = db.collection(REVIEWS);
+    const results = await reviews.find(query).toArray();
+
+    return res.render('searches.ejs', { results });
 });
 
-app.get('/review/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+app.get('/review/:rr', async (req, res) => {
+    const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
     const reviews = db.collection(REVIEWS);
-    let full_review = await reviews.findOne({ id: id });
-
-    /* if (!review) {
-        return res.render('message.ejs', {
-            message: `Sorry, no review with that ID is in the database.` });
-    } */
+    let full_review = await reviews.findOne({ rr: rr });
 
     res.render('reviewDetails.ejs', { full_review });
 });
