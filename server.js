@@ -62,6 +62,69 @@ app.get('/login', (req, res) => {
   return res.redirect('/signup');
 });
 
+app.post('/register', async (req, res) => {
+  const username = String(req.body.username || '').trim();
+  const password = String(req.body.password || '').trim();
+
+  if (!username || !password) {
+    req.flash('error', 'Username and password are required.');
+    return res.redirect('/signup');
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const usersCol = db.collection(USERS);
+  const existingUsers = await usersCol.find({ username: username }).toArray();
+
+  if (existingUsers.length > 0) {
+    req.flash('error', 'A user with that username already exists.');
+    return res.redirect('/signup');
+  }
+
+  const results = await usersCol.insertOne({
+    username,
+    password
+  });
+
+  req.session.username = username;
+  req.session.userId = results.insertedId.toString();
+  req.flash('info', 'Account created. You are now logged in.');
+  return res.redirect('/home');
+});
+
+app.post('/login', async (req, res) => {
+  const username = String(req.body.username || '').trim();
+  const password = String(req.body.password || '').trim();
+
+  if (!username || !password) {
+    req.flash('error', 'Username and password are required.');
+    return res.redirect('/signup');
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const usersCol = db.collection(USERS);
+  const existingUser = await usersCol.findOne({ username: username });
+
+  if (!existingUser) {
+    req.flash('error', 'Username not found');
+    return res.redirect('/signup');
+  }
+
+  if (existingUser.password !== password) {
+    req.flash('error', 'Incorrect password');
+    return res.redirect('/signup');
+  }
+
+  req.session.username = existingUser.username;
+  req.session.userId = existingUser._id.toString();
+  req.flash('info', 'Login successful.');
+  return res.redirect('/home');
+});
+
+app.post('/logout', (req, res) => {
+  req.session = null;
+  return res.redirect('/signup');
+});
+
 app.get('/profile', (req, res) => { // redirects to signup if no user ID
   if (!req.session.userId) {
     return res.redirect('/signup');
