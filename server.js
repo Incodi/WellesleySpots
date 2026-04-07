@@ -4,6 +4,8 @@ const express = require('express');
 const morgan = require('morgan');
 const serveStatic = require('serve-static');
 const bodyParser = require('body-parser');
+const cookieSession = require('cookie-session');
+const flash = require('express-flash');
 
 const { Connection } = require('./connection');
 const cs304 = require('./cs304');
@@ -20,6 +22,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(cs304.logRequestData);
+
+app.use(cookieSession({
+  name: 'session',
+  keys: [cs304.randomString(20)],
+  maxAge: 24 * 60 * 60 * 1000
+}));
+app.use(flash());
 
 app.use(serveStatic('public'));
 app.set('view engine', 'ejs');
@@ -43,18 +52,14 @@ app.get('/home', (req, res) => {
   });
 });
 
-app.get('/profile', (req, res) => {
-    return res.render('profile.ejs');
-});
-
-app.get('/collections', (req, res) => {
-    return res.render('collections.ejs');
-});
-
 app.get('/signup', (req, res) => {
   return res.render('signup', {
     currentPath: '/signup',
-    userId: req.session.userId || null
+    userId: req.session.userId || null,
+    username: req.session.username || null,
+    email: req.session.email || null,
+    flashError: req.flash('error'),
+    flashInfo: req.flash('info')
   });
 });
 
