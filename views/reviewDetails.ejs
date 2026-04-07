@@ -20,13 +20,12 @@
         <h2>Tags</h2>
         <ul>
             <% (full_review.tags ? full_review.tags.split(',') : []).forEach(tag => { %>
-        <li><%= tag.trim() %></li>
-    <% }) %>
+                <li><%= tag.trim() %></li>
+            <% }) %>
         </ul>
     </div>
-    <div>
+    <div id="comments">
         <%- include ('comments') %>
     </div>
-        
 </body>
 </html>

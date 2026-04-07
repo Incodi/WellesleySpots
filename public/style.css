@@ -116,8 +116,6 @@ h2 {
 	margin-right: 0;
 }
 
-/* button */
-
 input,
 button {
 	display: block;
@@ -155,7 +153,6 @@ button:hover {
 	margin-top: 10px;
 	font-weight: bold;
 }
-
 
 form, #review, #comments {
     background-color: var(--color-green-light);
@@ -233,11 +230,13 @@ input[type="submit"]:hover {
 	color: #ffd84d;
 }
 
-.reviews_page {
+.reviews, #search_section {
 	display: flex;
 	gap: 1em;
 	align-items: flex-start;
 }
-#create_review_form {
+
+
+#create_section, #result_section {
 	flex: 1;
 }

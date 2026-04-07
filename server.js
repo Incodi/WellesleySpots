@@ -10,8 +10,6 @@ const flash = require('express-flash');
 const { Connection } = require('./connection');
 const cs304 = require('./cs304');
 
-// Create and configure the app
-
 const app = express();
 
 app.use(morgan('tiny'));
@@ -151,10 +149,16 @@ app.get('/collections', (req, res) => { // redirects to signup if no user ID
 });
 
 app.get('/searches', (req, res) => {
+    /* if (!req.session.userId) {
+        return res.redirect('/signup');
+    } */
     return res.render('searches.ejs', { results: null });
 });
 
 app.get('/reviews', async (req, res) => {
+    /* if (!req.session.userId) {
+        return res.redirect('/signup');
+    } */
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });
@@ -193,8 +197,7 @@ app.get('/search', async (req, res) => {
         query.tags = { $in: tagsArray };
     }
 
-    const reviews = db.collection(REVIEWS);
-    const results = await reviews.find(query).toArray();
+    const results = await db.collection(REVIEWS).find(query).toArray();
 
     return res.render('searches.ejs', { results });
 });
@@ -202,15 +205,14 @@ app.get('/search', async (req, res) => {
 app.get('/review/:rr', async (req, res) => {
     const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
-    const reviews = db.collection(REVIEWS);
-    let full_review = await reviews.findOne({ rr: rr });
+    let full_review = await db.collection(REVIEWS).findOne({ rr: rr });
 
     res.render('reviewDetails.ejs', { full_review });
 });
 
 const serverPort = cs304.getPort(8080);
 
-// this is last, because it never returns
+
 app.listen(serverPort, function() {
     console.log(`listening on ${serverPort}`);
     console.log(`visit http://cs.wellesley.edu:${serverPort}/`);

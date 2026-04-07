@@ -12,14 +12,15 @@
 <body>
     <%- include ('navbar') %>
     <h1>Explore Reviews</h1>
-    <div>
+    <div class="reviews">
         <div id="search_section">
             <%- include('search') %>
         </div>
-    </div>
-    <% if (results) { %>
-        <%- include('list') %>
-    <% } %>
+        <div id="result_section">
+            <% if (results) { %>
+                <%- include('list') %>
+            <% } %>
+        </div>
     </div>
 </body>
 </html>
