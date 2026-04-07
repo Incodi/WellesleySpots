@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Review Details</title>
+    <meta name="author" content="Gloria">
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <%- include ('navbar') %>
+    <div id="review">
+        <h1><%= full_review.title %></h1>
+        <h2><%= full_review.location_name %></h2>
+        <h2><%= full_review.rating %> Stars</h2>
+        <p><%= full_review.review %></p>
+        <p><%= full_review.tags %></p>
+    </div>
+    <div>
+        <%- include ('comments') %>
+    </div>
+        
+</body>
+</html>

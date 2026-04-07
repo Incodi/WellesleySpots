@@ -123,11 +123,15 @@ button:hover {
 }
 
 
-form {
+form, #review, #comments {
     background-color: var(--color-green-light);
     padding: .5em;
     border-radius: 10px;
 }
+
+ #review, #comments {
+	margin: 1em;
+ }
 
 .create_review, .filter_reviews {
 	width: 500px;

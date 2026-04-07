@@ -27,7 +27,8 @@ $(document).ready(function() {
                     `<b>${r.title}</b><br>
                      <i>${r.location_name}</i><br>
                      ${r.review}<br>
-                     ${r.rating} stars`
+                     ${r.rating} stars<br>
+                     <a href="/review/${r.id}">View Details</a>`
                 );
     });
 
@@ -60,7 +61,8 @@ $(document).ready(function() {
                             `<b>${review.title}</b><br>
                              <i>${review.location_name}</i><br>
                              ${review.review}<br>
-                             ${review.rating} stars`
+                             ${review.rating} stars<br>
+                             <a href="/review/${review.id}">View Details</a>`
                         )
                         .openPopup();
             }

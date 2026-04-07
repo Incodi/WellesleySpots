@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Filtered Results</title>
+    <meta name="author" content="Gloria">
+    <link rel="stylesheet" href="/style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <ol>
+    <% reviews.forEach((elt) => { %>
+        <li><a href="/review/<%= elt.id %>"><%= elt.title %></a></li>
+    <% }); %>
+    </ol>
+</body>
+</html>

@@ -31,33 +31,9 @@ const LOCATIONS = 'locations';
 const REVIEWS = 'reviews';
 const COMMENTS = 'comments';
 
+// TODO: documentation
 app.get('/', (req, res) => {
     return res.render('home.ejs');
-});
-
-app.get('/reviews', async (req, res) => {
-    const db = await Connection.open(mongoUri, DB);
-    const reviews = await db.collection(REVIEWS).find({}).toArray();
-    return res.render('reviews.ejs', { reviews });
-});
-
-let reviewIdCounter = 1;
-app.post('/review/', async (req, res) => {
-    const reviewId = reviewIdCounter++;
-    const review = {
-        id: reviewId,
-        title: req.body.title,
-        location_name: req.body.location_name,
-        review: req.body.review,
-        x_coordinates: req.body.x_coordinates,
-        y_coordinates: req.body.y_coordinates,
-        tags: req.body.tags,
-        rating: req.body.rating
-    };
-
-    const db = await Connection.open(mongoUri, DB);
-    await db.collection(REVIEWS).insertOne(review);
-    res.json(review);
 });
 
 app.get('/home', (req, res) => {
@@ -74,6 +50,53 @@ app.get('/collections', (req, res) => {
 
 app.get('/signup', (req, res) => {
     return res.render('signup.ejs');
+});
+
+app.get('/reviews', async (req, res) => {
+    const db = await Connection.open(mongoUri, DB);
+    const reviews = await db.collection(REVIEWS).find({}).toArray();
+    return res.render('reviews.ejs', { reviews });
+});
+
+app.post('/reviews/', async (req, res) => {
+    let reviewIdCounter = 1;
+    const reviewId = reviewIdCounter++;
+    const review = {
+        id: reviewId, // TODO: review id
+        title: req.body.title,
+        location_name: req.body.location_name,
+        review: req.body.review,
+        x_coordinates: req.body.x_coordinates,
+        y_coordinates: req.body.y_coordinates,
+        tags: req.body.tags,
+        rating: req.body.rating
+    };
+
+    const db = await Connection.open(mongoUri, DB);
+    await db.collection(REVIEWS).insertOne(review);
+});
+
+app.get('/search', async (req, res) => {
+    const location_name = req.query.location;
+    // const rating = req.query.rating;
+    // const tags = req.query.tags; // TODO: handle tags search
+    const db = await Connection.open(mongoUri, DB);
+    const reviews = await db.collection(REVIEWS).find({location_name: location_name}).toArray();
+    return res.render('list.ejs', { reviews });
+});
+
+app.get('/review/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const db = await Connection.open(mongoUri, DB);
+    const reviews = db.collection(REVIEWS);
+    let full_review = await reviews.findOne({ id: id });
+
+    /* if (!review) {
+        return res.render('message.ejs', {
+            message: `Sorry, no review with that ID is in the database.` });
+    } */
+
+    res.render('reviewDetails.ejs', { full_review });
 });
 
 const serverPort = cs304.getPort(8080);
