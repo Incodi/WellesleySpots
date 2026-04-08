@@ -8,8 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
-    <form class="filter_reviews" method="GET" action="/search">
-        <h1>Filter Reviews</h1>
+    <form onsubmit="return !!(this.location.value || this.rating.value.trim() || this.filter_tags.selectedOptions.length)" class="filter_reviews" method="GET" action="/search">
         <p>Enter at least one field to search.</p>
         <p><label>Location: <input type="text" name="location"></label></p>
         <p><label>Rating: <input type="text" name="rating"></label></p>
@@ -22,7 +21,6 @@
                 <option value="clean">clean</option>
                 <option value="natural light">natural light</option>
             </select>
-        </label>
         <input type="submit" value="Search"></p>
     </form>
 </body>

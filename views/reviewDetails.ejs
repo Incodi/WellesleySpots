@@ -19,7 +19,8 @@
         <p><%= full_review.review %></p>
         <h2>Tags</h2>
         <ul>
-            <% (full_review.tags ? full_review.tags.split(',') : []).forEach(tag => { %>
+            <% if (full_review.tags) { %>
+            <% (Array.isArray(full_review.tags) ? full_review.tags : [full_review.tags]).forEach(tag => { %>
                 <li><%= tag.trim() %></li>
             <% }) %>
         </ul>

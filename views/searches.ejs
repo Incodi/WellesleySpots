@@ -11,20 +11,23 @@
 </head>
 <body>
     <%- include ('navbar') %>
-    <h1>Explore Reviews</h1>
+    <h1>Search Reviews</h1>
     <div class="reviews">
         <div id="search_section">
             <%- include('searchReviews') %>
         </div>
         <% if (results) { %>
+            <% if (results.length == 0) { %>
+                <p>No reviews found.</p>
+            <% } else {%>
             <div id="map" style="
             width: 900px;
             height: 460px;
             border-radius: 20px;">
             <%- include ('map') %>
+            <% }%>
         </div>
         <% }%>
-            
     </div>
     <script id="data" type="application/json">
         <%- JSON.stringify(results) %>
