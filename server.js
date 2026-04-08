@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 require("dotenv").config({ path: path.join(process.env.HOME, '.cs304env')});
 const express = require('express');
@@ -159,6 +160,7 @@ app.get('/reviews', async (req, res) => {
     /* if (!req.session.userId) {
         return res.redirect('/signup');
     } */
+    
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });

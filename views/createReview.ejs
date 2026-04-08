@@ -13,13 +13,13 @@
         <p>Manually enter your coordinates or click on map to have coordinates entered in form.</p>
         <p><label>Title: <input type="text" required name="title"></label></p>
         <p><label>Location Name: <input type="text" required name="location_name"></label></p>
-        <p><label>Review:<br><textarea cols="40" rows="10" required name="review"></textarea></label></p>
+        <p><label>Review:<br><textarea cols="50" rows="10" required name="review"></textarea></label></p>
         <p><label>
             X Coordinates: <input class="numbers" type="number" required name="x_coordinates" step="any"> 
             Y Coordinates: <input class="numbers" type="number" required name="y_coordinates" step="any">
         </label></p>
         <p><label for="tags">Tags:</label></p>
-        <select name="tags" multiple>
+        <select name="tags" multiple required>
             <option value="noisy">loud</option>
             <option value="quiet">quiet</option>
             <option value="empty">empty</option>
