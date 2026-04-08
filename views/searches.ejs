@@ -16,12 +16,15 @@
         <div id="search_section">
             <%- include('searchReviews') %>
         </div>
-        <div id="map" style="
+        <% if (results) { %>
+            <div id="map" style="
             width: 900px;
             height: 460px;
             border-radius: 20px;">
             <%- include ('map') %>
         </div>
+        <% }%>
+            
     </div>
     <script id="data" type="application/json">
         <%- JSON.stringify(results) %>
