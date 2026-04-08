@@ -17,7 +17,7 @@ $(document).ready(function() {
 
     map.on('click', onMapClick);
 
-    const reviews = JSON.parse($('#reviews_data').html() || '[]');
+    const reviews = JSON.parse($('#data').html() || '[]');
     reviews.forEach(function(review) {
         const xCoordinates = parseFloat(review.x_coordinates);
         const yCoordinates = parseFloat(review.y_coordinates);

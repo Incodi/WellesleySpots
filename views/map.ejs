@@ -10,21 +10,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
-    <%- include ('navbar') %>
-    <h1>Explore Reviews</h1>
     <div class="reviews">
-        <div id="create_section">
-            <%- include('createReview') %>
-        </div>
-        <div id="map" style="
-            width: 900px;
-            height: 915px;
-            border-radius: 20px;">
-            <%- include ('map') %>
+        <div id="map">
         </div>
     </div>
-    <script id="data" type="application/json">
-        <%- JSON.stringify(reviews) %>
-    </script>
+    <script src="/map.js" defer></script>
 </body>
 </html>
