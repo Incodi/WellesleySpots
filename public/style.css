@@ -3,6 +3,8 @@ HTML {
     --color-green-dark: #205600;
     --color-green-light: #eaffd1;
     --color-green-link: #dafdad;
+	--color-orange: #ff9900;
+	--color-orange-dark: #e68a00;
     --font-family: Helvetica;
     font-family: var(--font-family)
 }
@@ -20,6 +22,8 @@ h2 {
     color: var(--color-green);
 }
 
+
+/* navbar */
 .navbar {
 	background-color: var(--color-green);
 	padding: .25em;
@@ -27,7 +31,7 @@ h2 {
 }
 
 .nav-menu li {
-	display: inline;
+	display: inline-block;;
 	margin-right: 15px;
 }
 
@@ -47,51 +51,37 @@ h2 {
   display: inline-block;
 }
 
-.nav-menu .dropdown_button {
+.nav-menu .dropdown-reviews {
   background-color: var(--color-green);
 }
 
-.dropdown_content {
+.dropdown-content {
   display: none;
   position: absolute;
   background-color: var(--color-green);
   padding: .25em;
 }
 
-.dropdown_content a {
+.dropdown-content a {
   display: block;
 }
 
-.dropdown_content a:hover {
+.dropdown-content a:hover {
 	background-color: var(--color-green-dark);
 }
 
-.dropdown:hover .dropdown_content {
+.dropdown:hover .dropdown-content {
 	display: block;
 	border-radius: 10px;
 	width: 150px;
 }
 
-.dropdown:hover .dropdown_button {
+.dropdown:hover .dropdown-reviews {
 	background-color: var(--color-green-dark);
 }
 
-/* page stuffs */
 
-.page {
-	width: 80%;
-	margin: 20px auto;
-	padding: 20px;
-	background-color: white;
-	border: 1px solid #cccccc;
-}
-
-#collectionsList {
-	padding-left: 20px;
-}
-
-/* container stuffs */
-
+/* signup, login, logout, profile */
 .signup-container,
 .profile-container {
 	margin-top: 15px;
@@ -100,60 +90,53 @@ h2 {
 	background-color: #fafafa;
 }
 
-/* signup stuffs */
-
-.auth-grid {
-	overflow: hidden;
-}
-
-.auth-grid .signup-container {
+.signup-container {
 	float: left;
 	width: 45%;
 	margin-right: 3%;
 }
 
-.auth-grid .signup-container:last-child {
+.signup-container:last-child {
 	margin-right: 0;
 }
 
-input,
 button {
-	display: block;
-	width: 100%;
-	padding: 8px;
-	margin-top: 6px;
-	margin-bottom: 12px;
-	box-sizing: border-box;
-	border: 1px solid #bbbbbb;
+	border-radius: 10px;
+    background-color: var(--color-orange);
+    color: white;
+	margin-top: .5em;
+	padding: .5em;
+    border: none;
 }
 
-button {
-	background-color: #ff9900;
-	border: none;
-	color: white;
-	cursor: pointer;
+.logout-form {
+  display: inline;
+  margin: 0;
+  padding: 0;
 }
 
 button:hover {
-	background-color: #e68a00;
+	background-color: var(--color-orange-dark);
 }
 
 .button-link {
 	display: inline-block;
 	padding: 8px 12px;
 	margin-top: 10px;
-	background-color: #ff9900;
+	background-color: var(--color-orange);
 	color: white;
 	text-decoration: none;
 }
 
-/* popup message */
 
+/* popup message */
 .message {
 	margin-top: 10px;
 	font-weight: bold;
 }
 
+
+/* reviews */
 form, #review, #comments {
     background-color: var(--color-green-light);
     padding: .5em;
@@ -164,12 +147,12 @@ form, #review, #comments {
 	margin: 1em;
  }
 
-.filter_reviews {
+.filter-reviews {
 	width: 500px;
 	height: 450px;
 }
 
-.create_review {
+.create-review {
 	width: 500px;
 	height: 850px;
 }
@@ -230,13 +213,12 @@ input[type="submit"]:hover {
 	color: #ffd84d;
 }
 
-.reviews, #search_section {
+.reviews, #search-section {
 	display: flex;
 	gap: 1em;
 	align-items: flex-start;
 }
 
-
-#create_section, #result_section {
+#create-section, #result-section {
 	flex: 1;
 }
