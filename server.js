@@ -38,12 +38,35 @@ const USERS = 'users';
 const LOCATIONS = 'locations';
 const REVIEWS = 'reviews';
 const COMMENTS = 'comments';
+const LIKES = 'likes';
+const FAVORITES = 'favorites';
+const HISTORY = 'history';
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isWellesleyEmail(email) {
+  return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
+}
+
+// This is for debugging
+function isMongoConfigured(req, res) {
+  if (mongoUri) {
+    return true;
+  }
+
+  req.flash('error', 'Database connection is not configured.');
+  res.redirect('/signup');
+  return false;
+}
 
 // TODO: documentation
 app.get('/', (req, res) => { 
   return res.redirect('/home');
 });
 
+// Home page
 app.get('/home', (req, res) => {
   return res.render('home', {
     currentPath: '/home',
@@ -68,48 +91,77 @@ app.get('/login', (req, res) => {
 
 app.post('/register', async (req, res) => {
   const username = String(req.body.username || '').trim();
+  const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '').trim();
 
-  if (!username || !password) {
-    req.flash('error', 'Username and password are required.');
+  if (!isMongoConfigured(req, res)) {
+    return;
+  }
+
+  if (!username || !email || !password) {
+    req.flash('error', 'Username, email, and password are required.');
+    return res.redirect('/signup');
+  }
+
+  if (!isValidEmail(email)) {
+    req.flash('error', 'Please enter a valid email address.');
+    return res.redirect('/signup');
+  }
+
+  if (!isWellesleyEmail(email)) {
+    req.flash('error', 'Use your Wellesley email address ending in @wellesley.edu. just use test@wellesley.edu for now');
     return res.redirect('/signup');
   }
 
   const db = await Connection.open(mongoUri, DB);
   const usersCol = db.collection(USERS);
-  const existingUsers = await usersCol.find({ username: username }).toArray();
+  const existingUsers = await usersCol.find({
+    $or: [{ username: username }, { email: email }]
+  }).toArray();
 
   if (existingUsers.length > 0) {
-    req.flash('error', 'A user with that username already exists.');
+    req.flash('error', 'That username or email is already registered.');
     return res.redirect('/signup');
   }
 
   const results = await usersCol.insertOne({
     username,
+    email,
     password
   });
 
   req.session.username = username;
+  req.session.email = email;
   req.session.userId = results.insertedId.toString();
   req.flash('info', 'Account created. You are now logged in.');
   return res.redirect('/home');
 });
 
 app.post('/login', async (req, res) => {
-  const username = String(req.body.username || '').trim();
+  const loginIdentifier = String(req.body.loginIdentifier || '').trim();
   const password = String(req.body.password || '').trim();
 
-  if (!username || !password) {
-    req.flash('error', 'Username and password are required.');
+  // This is for debugging
+  if (!isMongoConfigured(req, res)) {
+    return;
+  }
+
+  if (!loginIdentifier || !password) {
+    req.flash('error', 'Username/email and password are required.');
     return res.redirect('/signup');
   }
 
   const db = await Connection.open(mongoUri, DB);
   const usersCol = db.collection(USERS);
-  const existingUser = await usersCol.findOne({ username: username });
+  const existingUser = await usersCol.findOne({
+    $or: [
+      { username: loginIdentifier },
+      { email: loginIdentifier.toLowerCase() }
+    ]
+  });
 
   if (!existingUser) {
-    req.flash('error', 'Username not found');
+    req.flash('error', 'Account not found');
     return res.redirect('/signup');
   }
 
@@ -119,6 +171,7 @@ app.post('/login', async (req, res) => {
   }
 
   req.session.username = existingUser.username;
+  req.session.email = existingUser.email || null;
   req.session.userId = existingUser._id.toString();
   req.flash('info', 'Login successful.');
   return res.redirect('/home');
@@ -135,17 +188,44 @@ app.get('/profile', (req, res) => { // redirects to signup if no user ID
   }
   return res.render('profile', {
     currentPath: '/profile',
-    userId: req.session.userId
+    userId: req.session.userId,
+    username: req.session.username || null,
+    email: req.session.email || null
   });
 });
 
-app.get('/collections', (req, res) => { // redirects to signup if no user ID
+app.get('/collections', async (req, res) => { // redirects to signup if no user ID
   if (!req.session.userId) {
     return res.redirect('/signup');
   }
+
+  // This is for debugging
+  if (!isMongoConfigured(req, res)) {
+    return;
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const userId = req.session.userId;
+
+  // Basic collection queries for each collection type, sorted by most recent first
+  const [reviews, comments, likes, favorites, history] = await Promise.all([
+    db.collection(REVIEWS).find({userId}).sort({createdAt: -1}).toArray(),
+    db.collection(COMMENTS).find({userId}).sort({createdAt: -1}).toArray(),
+    db.collection(LIKES).find({userId}).sort({createdAt: -1}).toArray(),
+    db.collection(FAVORITES).find({userId}).sort({createdAt: -1}).toArray(),
+    db.collection(HISTORY).find({userId}).sort({createdAt: -1}).toArray()
+  ]);
+
   return res.render('collections', {
     currentPath: '/collections',
-    userId: req.session.userId
+    userId: req.session.userId,
+    username: req.session.username || null,
+    email: req.session.email || null,
+    reviews,
+    comments,
+    likes,
+    favorites,
+    history
   });
 });
 
@@ -171,13 +251,16 @@ app.post('/reviews/', async (req, res) => {
     const reviewId = review_rr_counter++;
     const review = {
         rr: reviewId, // like nm or tt
+        userId: req.session.userId || null,
+        username: req.session.username || null,
         title: req.body.title,
         location_name: req.body.location_name,
         review: req.body.review,
         x_coordinates: req.body.x_coordinates,
         y_coordinates: req.body.y_coordinates,
         tags: req.body.tags,
-        rating: req.body.rating
+        rating: req.body.rating,
+        createdAt: new Date()
     };
 
     const db = await Connection.open(mongoUri, DB);
