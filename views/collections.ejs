@@ -12,12 +12,105 @@
         <h1>My Collections</h1>
 
         <section class="profile-container">
-            <h2>Saved Spots</h2>
-            <ul id="collectionsList"></ul>  <!-- list to add onto -->
-            <p id="collectionsMessage" class="message"></p>
+            <h2>Account Summary</h2>
+            <p><strong>Name:</strong> <%= username || 'Not logged in' %></p>
+            <p><strong>Email:</strong> <%= email || 'Not logged in' %></p>
         </section>
+
+        <section class="profile-container">
+            <h2>Favorites</h2>
+            <% if (favorites && favorites.length) { %>
+                <ul>
+                    <% favorites.forEach(function(favorite) { %>
+                        <li>
+                            <strong><%= favorite.location_name || favorite.title || 'Favorite spot' %></strong>
+                            <% if (favorite.createdAt) { %>
+                                <span> - saved on <%= new Date(favorite.createdAt).toLocaleString() %></span>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="message">No favorites saved yet.</p>
+            <% } %>
+        </section>
+
+        <section class="profile-container">
+            <h2>Reviews</h2>
+            <% if (reviews && reviews.length) { %>
+                <ul>
+                    <% reviews.forEach(function(review) { %>
+                        <li>
+                            <strong><%= review.title %></strong> at <%= review.location_name %> - <%= review.rating %> stars
+                            <div><%= review.review %></div>
+                            <% if (review.createdAt) { %>
+                                <small>Posted <%= new Date(review.createdAt).toLocaleString() %></small>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="message">No reviews yet.</p>
+            <% } %>
+        </section>
+
+        <section class="profile-container">
+            <h2>Comments</h2>
+            <% if (comments && comments.length) { %>
+                <ul>
+                    <% comments.forEach(function(comment) { %>
+                        <li>
+                            <strong><%= comment.location_name || comment.title || 'Comment' %></strong>
+                            <div><%= comment.comment || comment.text || comment.review || '' %></div>
+                            <% if (comment.createdAt) { %>
+                                <small>Posted <%= new Date(comment.createdAt).toLocaleString() %></small>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="message">No comments yet.</p>
+            <% } %>
+        </section>
+
+        <section class="profile-container">
+            <h2>Likes</h2>
+            <% if (likes && likes.length) { %>
+                <ul>
+                    <% likes.forEach(function(like) { %>
+                        <li>
+                            <strong><%= like.location_name || like.title || 'Liked item' %></strong>
+                            <% if (like.createdAt) { %>
+                                <small>Liked <%= new Date(like.createdAt).toLocaleString() %></small>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="message">No likes yet.</p>
+            <% } %>
+        </section>
+
+        <section class="profile-container">
+            <h2>History</h2>
+            <% if (history && history.length) { %>
+                <ul>
+                    <% history.forEach(function(item) { %>
+                        <li>
+                            <strong><%= item.type || 'Activity' %></strong>
+                            <span><%= item.location_name || item.title || item.review || item.comment || '' %></span>
+                            <% if (item.createdAt) { %>
+                                <small> - <%= new Date(item.createdAt).toLocaleString() %></small>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p class="message">No recent activity yet.</p>
+            <% } %>
+        </section>
+
     </main>
 
-    <script src="script.js"></script>
 </body>
 </html>
