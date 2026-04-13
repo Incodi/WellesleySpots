@@ -37,23 +37,26 @@ app.set('view engine', 'ejs');
 const mongoUri = cs304.getMongoUri();
 const DB = 'wellesleyspots';
 const USERS = 'users';
-const LOCATIONS = 'locations';
 const REVIEWS = 'reviews';
 const COMMENTS = 'comments';
 const LIKES = 'likes';
 const FAVORITES = 'favorites';
 const HISTORY = 'history';
 
-// Helper to validate email format
+// TODO: documentation
+
+/* Validate email format */
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Helper to check if email is a Wellesley email address (ends with @wellesley.edu)
+// Check if email is a Wellesley email address (ends with @wellesley.edu)
 function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
+
+// TODO: remove this function for draft submission
 // This is for debugging
 function isMongoConfigured(req, res) {
   if (mongoUri) {
@@ -65,7 +68,7 @@ function isMongoConfigured(req, res) {
   return false;
 }
 
-// TODO: documentation
+// Redirect to home page 
 app.get('/', (req, res) => { 
   return res.redirect('/home');
 });
@@ -256,7 +259,6 @@ app.get('/reviews', async (req, res) => {
     /* if (!req.session.userId) {
         return res.redirect('/signup');
     } */
-    
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });

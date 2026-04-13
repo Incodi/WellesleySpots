@@ -23,15 +23,15 @@
       <section class="signup-container">
         <h2>Create Account</h2>
         <form id="signupForm" method="POST" action="/register">
-          <label for="username">Username:</label>
-          <input type="text" id="username" name="username" required>
+          <p><label for="username">Username:</label>
+          <input type="text" id="username" name="username" required></p>
 
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" required pattern="^[^\s@]+@wellesley\.edu$" title="Use your @wellesley.edu email address" autocomplete="email">
+          <p><label for="email">Email:</label>
+          <input type="email" id="email" name="email" required pattern="^[^\s@]+@wellesley\.edu$" title="Use your @wellesley.edu email address" autocomplete="email"></p>
           <p class="hint">Wellesley email only: your address must end with @wellesley.edu. use test@wellesley.edu for now</p>
 
-          <label for="password">Password:</label>
-          <input type="password" id="password" name="password" required>
+          <p><label for="password">Password:</label>
+          <input type="password" id="password" name="password" required></p>
 
           <button type="submit">Sign Up</button>
         </form>
@@ -40,11 +40,11 @@
       <section class="signup-container">
         <h2>Login</h2>
         <form id="loginForm" method="POST" action="/login">
-          <label for="loginIdentifier">Username or Email:</label>
-          <input type="text" id="loginIdentifier" name="loginIdentifier" required>
+          <p><label for="loginIdentifier">Username or Email:</label>
+          <input type="text" id="loginIdentifier" name="loginIdentifier" required></p>
 
-          <label for="loginPassword">Password:</label>
-          <input type="password" id="loginPassword" name="password" required>
+          <p><label for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" name="password" required></p>
 
           <button type="submit">Login</button>
         </form>
