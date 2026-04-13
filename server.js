@@ -1,6 +1,8 @@
 'use strict';
 const path = require('path');
+const bcrypt = require('bcrypt');
 require("dotenv").config({ path: path.join(process.env.HOME, '.cs304env')});
+
 const express = require('express');
 const morgan = require('morgan');
 const serveStatic = require('serve-static');
@@ -42,10 +44,12 @@ const LIKES = 'likes';
 const FAVORITES = 'favorites';
 const HISTORY = 'history';
 
+// Helper to validate email format
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Helper to check if email is a Wellesley email address (ends with @wellesley.edu)
 function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
@@ -66,7 +70,7 @@ app.get('/', (req, res) => {
   return res.redirect('/home');
 });
 
-// Home page
+// Render Home page
 app.get('/home', (req, res) => {
   return res.render('home', {
     currentPath: '/home',
@@ -74,6 +78,7 @@ app.get('/home', (req, res) => {
   });
 });
 
+// Render Signup/Login page
 app.get('/signup', (req, res) => {
   return res.render('signup', {
     currentPath: '/signup',
@@ -85,15 +90,20 @@ app.get('/signup', (req, res) => {
   });
 });
 
+// Redirect /login to /signup for now since we have a combined signup/login page
 app.get('/login', (req, res) => {
   return res.redirect('/signup');
 });
 
+// Handle user registration and login 
+// Uses bcrypt to hash passwords before storing in the database, 
+// and to compare hashes during login
 app.post('/register', async (req, res) => {
   const username = String(req.body.username || '').trim();
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '').trim();
 
+  // This is for debugging
   if (!isMongoConfigured(req, res)) {
     return;
   }
@@ -124,10 +134,11 @@ app.post('/register', async (req, res) => {
     return res.redirect('/signup');
   }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
   const results = await usersCol.insertOne({
     username,
     email,
-    password
+    password: hashedPassword
   });
 
   req.session.username = username;
@@ -137,6 +148,7 @@ app.post('/register', async (req, res) => {
   return res.redirect('/home');
 });
 
+// Handle user login on the signup page (since we have a combined signup/login page)
 app.post('/login', async (req, res) => {
   const loginIdentifier = String(req.body.loginIdentifier || '').trim();
   const password = String(req.body.password || '').trim();
@@ -165,7 +177,9 @@ app.post('/login', async (req, res) => {
     return res.redirect('/signup');
   }
 
-  if (existingUser.password !== password) {
+  // Compare the provided password with the hashed password in the database
+  const passwordMatch = await bcrypt.compare(password, existingUser.password);
+  if (!passwordMatch) {
     req.flash('error', 'Incorrect password');
     return res.redirect('/signup');
   }
@@ -177,6 +191,8 @@ app.post('/login', async (req, res) => {
   return res.redirect('/home');
 });
 
+// Handle user logout
+// Turn session into null to clear all session data and log the user out
 app.post('/logout', (req, res) => {
   req.session = null;
   return res.redirect('/signup');
@@ -207,7 +223,7 @@ app.get('/collections', async (req, res) => { // redirects to signup if no user 
   const db = await Connection.open(mongoUri, DB);
   const userId = req.session.userId;
 
-  // Basic collection queries for each collection type, sorted by most recent first
+  // Basic collection quires for each collection type, sorted by most recent first
   const [reviews, comments, likes, favorites, history] = await Promise.all([
     db.collection(REVIEWS).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(COMMENTS).find({userId}).sort({createdAt: -1}).toArray(),
