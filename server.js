@@ -249,38 +249,38 @@ app.get('/collections', async (req, res) => { // redirects to signup if no user 
 });
 
 app.get('/searches', (req, res) => {
-    /* if (!req.session.userId) {
+    if (!req.session.userId) {
         return res.redirect('/signup');
-    } */
+    }
+
     return res.render('searches.ejs', { results: null });
 });
 
 app.get('/reviews', async (req, res) => {
-    /* if (!req.session.userId) {
+    if (!req.session.userId) {
         return res.redirect('/signup');
-    } */
+    }
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });
 });
 
-let review_rr_counter = 1;
 app.post('/reviews/', async (req, res) => {
-    const reviewId = review_rr_counter++;
     const review = {
-        rr: reviewId, // like nm or tt
+        rr: Math.floor(10000 + Math.random() * 90000), // like nm or tt // TODO: double check this
         userId: req.session.userId || null,
         username: req.session.username || null,
+        createdAt: new Date(),
         title: req.body.title,
         location_name: req.body.location_name,
         review: req.body.review,
         x_coordinates: req.body.x_coordinates,
         y_coordinates: req.body.y_coordinates,
         tags: req.body.tags,
-        rating: req.body.rating,
-        createdAt: new Date()
+        rating: req.body.rating
     };
 
+    console.log(review); // TODO: remove
     const db = await Connection.open(mongoUri, DB);
     await db.collection(REVIEWS).insertOne(review);
     res.redirect('/reviews');
@@ -301,7 +301,6 @@ app.get('/search', async (req, res) => {
     }
 
     const results = await db.collection(REVIEWS).find(query).toArray();
-
     return res.render('searches.ejs', { results });
 });
 
@@ -310,7 +309,7 @@ app.get('/review/:rr', async (req, res) => {
     const db = await Connection.open(mongoUri, DB);
     let full_review = await db.collection(REVIEWS).findOne({ rr: rr });
 
-    res.render('reviewDetails.ejs', { full_review });
+    res.render('reviewDetails.ejs', { review: full_review });
 });
 
 const serverPort = cs304.getPort(8080);

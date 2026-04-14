@@ -10,19 +10,22 @@
 <body>
     <%- include ('navbar') %>
     <div id="review">
-        <h1><%= full_review.title %></h1>
+        <h1><%= review.title %></h1>
+        <h3>By <%= review.username || 'Anonymous' %></h3>
+        <h3>Posted <%= review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Unknown date' %></h3>
         <h2>Location</h2>
-        <p><%= full_review.location_name %></p>
+        <p><%= review.location_name %></p>
         <h2>Rating</h2>
-        <p><%= full_review.rating %> Stars</p>
+        <p><%= review.rating %> Stars</p>
         <h2>Review</h2>
-        <p><%= full_review.review %></p>
+        <p><%= review.review %></p>
         <h2>Tags</h2>
         <ul>
-            <% if (full_review.tags) { %>
-            <% (Array.isArray(full_review.tags) ? full_review.tags : [full_review.tags]).forEach(tag => { %>
+            <% if (review.tags) { %>
+            <% (Array.isArray(review.tags) ? review.tags : [review.tags]).forEach(tag => { %>
                 <li><%= tag.trim() %></li>
             <% }) %>
+            <% } %>
         </ul>
     </div>
     <div id="comments">

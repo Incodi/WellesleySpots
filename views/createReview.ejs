@@ -1,7 +1,31 @@
 <form class="create-review" method="POST" action="/reviews/">
     <p>Manually enter your coordinates or click on map to have coordinates entered in form.</p>
     <p><label>Title: <input type="text" required name="title"></label></p>
-    <p><label>Location Name: <input type="text" required name="location-name"></label></p>
+    <p><label>Location Area:
+        <select name="location_name" required>
+            <option value="Science Center">Science Center</option>
+            <option value="Lulu">Lulu</option>
+            <option value="Clapp">Clapp</option>
+            <option value="Bates">Bates</option>
+            <option value="Freeman">Freeman</option>
+            <option value="McAfee">McAfee</option>
+            <option value="Stone Davis">Stone Davis</option>
+            <option value="Caz">Caz</option>
+            <option value="Pom">Pom</option>
+            <option value="Shafer">Shafer</option>
+            <option value="Beebe">Beebe</option>
+            <option value="Tower">Tower</option>
+            <option value="Claflin">Claflin</option>
+            <option value="Academic Quad">Academic Quad</option>
+            <option value="Munger">Munger</option>
+            <option value="Sev">Sev</option>
+            <option value="Lake House">Lake House</option>
+            <option value="Casa Cervantes">Casa Cervantes</option>
+            <option value="French House">French House</option>
+            <option value="Lake Waban">Lake Waban</option>
+            <option value="Other">Other</option>
+        </select>
+    </label></p>
     <p><label>Review:<br><textarea cols="50" rows="10" required name="review"></textarea></label></p>
     <p><label>
         X Coordinates: <input class="numbers" type="number" required name="x_coordinates" step="any"> 
@@ -33,6 +57,6 @@
         </label>
     </p>
     <input type="button" value="Add Photo">
-    <input type="submit" value="Submit"></p>
+    <p><input type="submit" value="Submit"></p>
 </form>
 

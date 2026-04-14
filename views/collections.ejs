@@ -41,11 +41,7 @@
                 <ul>
                     <% reviews.forEach(function(review) { %>
                         <li>
-                            <strong><%= review.title %></strong> at <%= review.location_name %> - <%= review.rating %> stars
-                            <div><%= review.review %></div>
-                            <% if (review.createdAt) { %>
-                                <small>Posted <%= new Date(review.createdAt).toLocaleString() %></small>
-                            <% } %>
+                            <a href="/review/${review.rr}"><%= review.title %> (posted <%= new Date(review.createdAt).toLocaleString() %>)</a>
                         </li>
                     <% }) %>
                 </ul>
