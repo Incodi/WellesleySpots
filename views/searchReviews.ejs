@@ -1,6 +1,13 @@
 <form onsubmit="return !!(this.location.value || this.rating.value.trim() || this.filter_tags.selectedOptions.length)" class="filter-reviews" method="GET" action="/search">
     <p>Enter at least one field to search.</p>
-    <p><label>Location Area: <input type="text" name="location"></label></p>
+    <p><label>Location Area: <select name="location">
+    <option value="">Select Location</option>
+
+    <% locations.forEach(location => { %>
+      <option value="<%= location %>"><%= location %></option>
+    <% }) %>
+
+  </select></label></p>
     <p><label>Rating: <input type="text" name="rating"></label></p>
     <p><label for="filter_tags">Tags:</label></p>
         <select name="filter_tags" multiple>

@@ -55,7 +55,6 @@ function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
-
 // TODO: remove this function for draft submission
 // This is for debugging
 function isMongoConfigured(req, res) {
@@ -248,14 +247,7 @@ app.get('/collections', async (req, res) => { // redirects to signup if no user 
   });
 });
 
-app.get('/searches', (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/signup');
-    }
-
-    return res.render('searches.ejs', { results: null });
-});
-
+// Render reviews page with all review creation form and existing reviews shown in map view
 app.get('/reviews', async (req, res) => {
     if (!req.session.userId) {
         return res.redirect('/signup');
@@ -265,6 +257,7 @@ app.get('/reviews', async (req, res) => {
     return res.render('reviews.ejs', { reviews });
 });
 
+// Handles review creation form submission and then redirects to updated reviews page
 app.post('/reviews/', async (req, res) => {
     const review = {
         rr: Math.floor(10000 + Math.random() * 90000), // like nm or tt // TODO: double check this
@@ -280,16 +273,40 @@ app.post('/reviews/', async (req, res) => {
         rating: req.body.rating
     };
 
-    console.log(review); // TODO: remove
     const db = await Connection.open(mongoUri, DB);
     await db.collection(REVIEWS).insertOne(review);
     res.redirect('/reviews');
 });
 
+// Render review details page for a specific review using on required parameter: rr (review ID)
+app.get('/review/:rr', async (req, res) => {
+    const rr = parseInt(req.params.rr);
+    const db = await Connection.open(mongoUri, DB);
+    let review = await db.collection(REVIEWS).findOne({ rr: rr });
+
+    res.render('reviewDetails.ejs', { review });
+});
+
+// Render search page with search form and existing locations for a dynamic dropdown filter in form
+app.get('/searches', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/signup');
+    }
+    const db = await Connection.open(mongoUri, DB);
+    const locations = await db.collection(REVIEWS).distinct('location_name', {});
+
+    return res.render('searches.ejs', {
+        results: null,
+        locations
+    });
+});
+
+// Retrieves reviews that fit search criteria, location, rating, or tag(s) and renders search page with results and existing locations for dropdown filter in form
 app.get('/search', async (req, res) => {
     const { location, rating, filter_tags } = req.query;
 
     const db = await Connection.open(mongoUri, DB);
+    const locations = await db.collection(REVIEWS).distinct('location_name', {});
 
     let query = {};
     if (location) query.location_name = location;
@@ -301,15 +318,7 @@ app.get('/search', async (req, res) => {
     }
 
     const results = await db.collection(REVIEWS).find(query).toArray();
-    return res.render('searches.ejs', { results });
-});
-
-app.get('/review/:rr', async (req, res) => {
-    const rr = parseInt(req.params.rr);
-    const db = await Connection.open(mongoUri, DB);
-    let full_review = await db.collection(REVIEWS).findOne({ rr: rr });
-
-    res.render('reviewDetails.ejs', { review: full_review });
+    return res.render('searches.ejs', { results, locations });
 });
 
 const serverPort = cs304.getPort(8080);

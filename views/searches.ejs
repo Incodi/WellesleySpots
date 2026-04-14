@@ -14,7 +14,7 @@
     <h1>Search Reviews</h1>
     <div class="reviews">
         <div id="search-section">
-            <%- include('searchReviews') %>
+            <%- include('searchReviews', { locations }) %>
         </div>
         <% if (results) { %>
             <% if (results.length == 0) { %>
