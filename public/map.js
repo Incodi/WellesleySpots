@@ -1,3 +1,4 @@
+'use strict';
 $(document).ready(function() {
     const map = L.map('map').setView([42.293243, -71.305604], 16);
 
@@ -15,8 +16,9 @@ $(document).ready(function() {
         }
     }
 
-    map.on('click', onMapClick);
+    map.on('click', onMapClick); // load coordinates for user
 
+    // retrieve existing reviews & create markers for them 
     const reviews = JSON.parse($('#data').html() || '[]');
     reviews.forEach(function(review) {
         const xCoordinates = parseFloat(review.x_coordinates);
@@ -32,6 +34,7 @@ $(document).ready(function() {
                 );
     });
 
+    // create marker for new review when form submitted
     $('.createreview').on('submit', function(e) {
         e.preventDefault();
         const form = $(this);

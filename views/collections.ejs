@@ -12,30 +12,6 @@
         <h1>My Collections</h1>
 
         <section class="profile-container">
-            <h2>Account Summary</h2>
-            <p><strong>Name:</strong> <%= username || 'Not logged in' %></p>
-            <p><strong>Email:</strong> <%= email || 'Not logged in' %></p>
-        </section>
-
-        <section class="profile-container">
-            <h2>Favorites</h2>
-            <% if (favorites && favorites.length) { %>
-                <ul>
-                    <% favorites.forEach(function(favorite) { %>
-                        <li>
-                            <strong><%= favorite.location_name || favorite.title || 'Favorite spot' %></strong>
-                            <% if (favorite.createdAt) { %>
-                                <span> - saved on <%= new Date(favorite.createdAt).toLocaleString() %></span>
-                            <% } %>
-                        </li>
-                    <% }) %>
-                </ul>
-            <% } else { %>
-                <p class="message">No favorites saved yet.</p>
-            <% } %>
-        </section>
-
-        <section class="profile-container">
             <h2>Reviews</h2>
             <% if (reviews && reviews.length) { %>
                 <ul>

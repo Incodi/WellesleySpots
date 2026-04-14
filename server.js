@@ -9,6 +9,7 @@ const serveStatic = require('serve-static');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const flash = require('express-flash');
+const counter = require('./counter-utils.js')
 
 const { Connection } = require('./connection');
 const cs304 = require('./cs304');
@@ -38,14 +39,12 @@ const mongoUri = cs304.getMongoUri();
 const DB = 'wellesleyspots';
 const USERS = 'users';
 const REVIEWS = 'reviews';
+const COUNTERS = 'counters';
 const COMMENTS = 'comments';
 const LIKES = 'likes';
-const FAVORITES = 'favorites';
 const HISTORY = 'history';
 
-// TODO: documentation
-
-/* Validate email format */
+// Validate email format
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -55,17 +54,11 @@ function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
-// TODO: remove this function for draft submission
-// This is for debugging
-function isMongoConfigured(req, res) {
-  if (mongoUri) {
-    return true;
-  }
-
-  req.flash('error', 'Database connection is not configured.');
-  res.redirect('/signup');
-  return false;
-}
+// Apply user session data to all routes so nav bar has conditional appearance based on login/logout state
+app.use((req, res, next) => {
+  res.locals.user = req.session.userId || null;
+  next();
+});
 
 // Redirect to home page 
 app.get('/', (req, res) => { 
@@ -104,11 +97,6 @@ app.post('/register', async (req, res) => {
   const username = String(req.body.username || '').trim();
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '').trim();
-
-  // This is for debugging
-  if (!isMongoConfigured(req, res)) {
-    return;
-  }
 
   if (!username || !email || !password) {
     req.flash('error', 'Username, email, and password are required.');
@@ -155,11 +143,6 @@ app.post('/login', async (req, res) => {
   const loginIdentifier = String(req.body.loginIdentifier || '').trim();
   const password = String(req.body.password || '').trim();
 
-  // This is for debugging
-  if (!isMongoConfigured(req, res)) {
-    return;
-  }
-
   if (!loginIdentifier || !password) {
     req.flash('error', 'Username/email and password are required.');
     return res.redirect('/signup');
@@ -201,9 +184,7 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/profile', (req, res) => { // redirects to signup if no user ID
-  if (!req.session.userId) {
-    return res.redirect('/signup');
-  }
+  if (!req.session.userId) return res.redirect('/signup');
   return res.render('profile', {
     currentPath: '/profile',
     userId: req.session.userId,
@@ -213,24 +194,16 @@ app.get('/profile', (req, res) => { // redirects to signup if no user ID
 });
 
 app.get('/collections', async (req, res) => { // redirects to signup if no user ID
-  if (!req.session.userId) {
-    return res.redirect('/signup');
-  }
-
-  // This is for debugging
-  if (!isMongoConfigured(req, res)) {
-    return;
-  }
+  if (!req.session.userId) return res.redirect('/signup');
 
   const db = await Connection.open(mongoUri, DB);
   const userId = req.session.userId;
 
   // Basic collection quires for each collection type, sorted by most recent first
-  const [reviews, comments, likes, favorites, history] = await Promise.all([
+  const [reviews, comments, likes, history] = await Promise.all([
     db.collection(REVIEWS).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(COMMENTS).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(LIKES).find({userId}).sort({createdAt: -1}).toArray(),
-    db.collection(FAVORITES).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(HISTORY).find({userId}).sort({createdAt: -1}).toArray()
   ]);
 
@@ -242,16 +215,13 @@ app.get('/collections', async (req, res) => { // redirects to signup if no user 
     reviews,
     comments,
     likes,
-    favorites,
     history
   });
 });
 
 // Render reviews page with all review creation form and existing reviews shown in map view
 app.get('/reviews', async (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/signup');
-    }
+    if (!req.session.userId) return res.redirect('/signup');
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });
@@ -259,8 +229,10 @@ app.get('/reviews', async (req, res) => {
 
 // Handles review creation form submission and then redirects to updated reviews page
 app.post('/reviews/', async (req, res) => {
+  const db = await Connection.open(mongoUri, DB);
+  const review_counter = await counter.incr(db.collection(COUNTERS), REVIEWS);
     const review = {
-        rr: Math.floor(10000 + Math.random() * 90000), // like nm or tt // TODO: double check this
+        rr: review_counter, // like nm or tt
         userId: req.session.userId || null,
         username: req.session.username || null,
         createdAt: new Date(),
@@ -273,13 +245,13 @@ app.post('/reviews/', async (req, res) => {
         rating: req.body.rating
     };
 
-    const db = await Connection.open(mongoUri, DB);
     await db.collection(REVIEWS).insertOne(review);
     res.redirect('/reviews');
 });
 
 // Render review details page for a specific review using on required parameter: rr (review ID)
 app.get('/review/:rr', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/signup');
     const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
     let review = await db.collection(REVIEWS).findOne({ rr: rr });
@@ -289,9 +261,7 @@ app.get('/review/:rr', async (req, res) => {
 
 // Render search page with search form and existing locations for a dynamic dropdown filter in form
 app.get('/searches', async (req, res) => {
-    if (!req.session.userId) {
-        return res.redirect('/signup');
-    }
+    if (!req.session.userId) return res.redirect('/signup');
     const db = await Connection.open(mongoUri, DB);
     const locations = await db.collection(REVIEWS).distinct('location_name', {});
 
@@ -303,6 +273,7 @@ app.get('/searches', async (req, res) => {
 
 // Retrieves reviews that fit search criteria, location, rating, or tag(s) and renders search page with results and existing locations for dropdown filter in form
 app.get('/search', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/signup');
     const { location, rating, filter_tags } = req.query;
 
     const db = await Connection.open(mongoUri, DB);
