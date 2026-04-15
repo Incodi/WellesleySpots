@@ -253,10 +253,24 @@ app.post('/reviews/', async (req, res) => {
 app.get('/review/:rr', async (req, res) => {
     if (!req.session.userId) return res.redirect('/signup');
     const rr = parseInt(req.params.rr);
+    let canDelete = true;
     const db = await Connection.open(mongoUri, DB);
-    let review = await db.collection(REVIEWS).findOne({ rr: rr });
+    const review = await db.collection(REVIEWS).findOne({ rr: rr });
+    if (req.session.userId != review.userId) canDelete = false;
 
-    res.render('reviewDetails.ejs', { review });
+    res.render('reviewDetails.ejs', { review, canDelete });
+});
+
+// Delete a specific review if user is author of the review
+app.post('/review/:rr/delete', async (req, res) => {
+    const rr = parseInt(req.params.rr);
+    const db = await Connection.open(mongoUri, DB);
+    const review = await db.collection(REVIEWS).findOne({ rr: rr });
+    if (req.session.userId != review.userId) return res.redirect(`/review/${rr}`);
+
+    await db.collection(REVIEWS).deleteOne({ rr: rr });
+
+    res.redirect('/reviews');
 });
 
 // Render search page with search form and existing locations for a dynamic dropdown filter in form
