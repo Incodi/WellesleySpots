@@ -5,6 +5,8 @@ HTML {
     --color-green-link: #dafdad;
 	--color-orange: #ff9900;
 	--color-orange-dark: #e68a00;
+	--color-red: #cd3333;
+	--color-red-dark: #a01818;
     --font-family: Helvetica;
     font-family: var(--font-family)
 }
@@ -109,14 +111,22 @@ button {
     border: none;
 }
 
+button:hover {
+	background-color: var(--color-orange-dark);
+}
+
+.delete-button {
+	background-color: var(--color-red);
+}
+
+.delete-button:hover {
+	background-color: var(--color-red-dark);
+}
+
 .logout-form {
   display: inline;
   margin: 0;
   padding: 0;
-}
-
-button:hover {
-	background-color: var(--color-orange-dark);
 }
 
 .button-link {
@@ -137,13 +147,13 @@ button:hover {
 
 
 /* reviews */
-form, #review, #comments {
+form, #review, #comments, .change-review {
     background-color: var(--color-green-light);
     padding: .5em;
     border-radius: 10px;
 }
 
- #review, #comments {
+ #review, #comments, .change-review {
 	margin: 1em;
  }
 
@@ -157,6 +167,16 @@ form, #review, #comments {
 	height: 850px;
 }
 
+.click-changes-button,
+.delete-review {
+    display: inline-block;
+    margin: 0;
+}
+
+.cancel-changes-button {
+	margin: .5em;
+}
+
 select, form select, form input, form textarea {
     border-radius: 10px;
     background-color: var(--color-green);
@@ -166,6 +186,9 @@ select, form select, form input, form textarea {
     border: none;
 }
 
+input::placeholder, textarea::placeholder {
+	color: rgba(2, 69, 6, 0.844);
+}
 form textarea {
 	resize: none;
 }

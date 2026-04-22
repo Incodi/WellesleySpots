@@ -253,12 +253,37 @@ app.post('/reviews/', async (req, res) => {
 app.get('/review/:rr', async (req, res) => {
     if (!req.session.userId) return res.redirect('/signup');
     const rr = parseInt(req.params.rr);
-    let canDelete = true;
+    let canEdit = true;
     const db = await Connection.open(mongoUri, DB);
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
-    if (req.session.userId != review.userId) canDelete = false;
+    if (req.session.userId != review.userId) canEdit = false;
 
-    res.render('reviewDetails.ejs', { review, canDelete });
+    return res.render('reviewDetails.ejs', { review, canEdit });
+});
+
+
+// Update a specific review if user is author of the review
+app.post('/review/:rr/update', async (req, res) => {
+    const rr = parseInt(req.params.rr);
+    const db = await Connection.open(mongoUri, DB);
+    let fields = {};
+    let canEdit = true;
+    for (const key in req.body) {
+      if (req.body[key] !== "") {
+        fields[key] = req.body[key];
+      }
+    }
+
+    const review = await db.collection(REVIEWS).findOne({ rr: rr });
+
+    if (req.session.userId != review.userId) {
+      canEdit = false;
+      return res.render('reviewDetails.ejs', { review, canEdit });
+    }
+
+    await db.collection(REVIEWS).updateOne({ rr: rr }, { $set: fields });
+
+    return res.redirect(`/review/${rr}`);
 });
 
 // Delete a specific review if user is author of the review

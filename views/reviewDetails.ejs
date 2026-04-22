@@ -6,6 +6,7 @@
     <meta name="author" content="Gloria">
     <link rel="stylesheet" href="/style.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/review.js"></script>
 </head>
 <body>
     <%- include ('navbar') %>
@@ -27,12 +28,19 @@
             <% }) %>
             <% } %>
         </ul>
-        <% if (canDelete) { %>
-            <form action="/review/<%= review.rr %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this review? Delete cannot be undone.');">
-                <button type="submit">Delete Review</button>
+        <% if (canEdit) { %>
+            <button class="click-changes-button">Make Changes</button>
+            <form class="delete-review" action="/review/<%= review.rr %>/delete" method="POST">
+                <button type="submit" class="delete-button">Delete Review</button>
             </form>
         <% } %>
     </div>
+
+    <% if (canEdit) { %>
+        <div class="change-review" style="display: none;">
+            <%- include('updateReview') %>
+        </div>
+    <% } %>
     <div id="comments">
         <%- include ('comments') %>
     </div>
