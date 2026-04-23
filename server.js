@@ -98,8 +98,25 @@ app.post('/register', async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '').trim();
 
+  // Validation patterns
+  const usernameRegex = /^[a-zA-Z0-9_-]{3,24}$/; // 3-24 chars, alphanumeric/underscore
+
+  // Basic email structure also make sure email has no invalid characters
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+ 
+  const passwordRegex = /^[A-Za-z\d@$!%*?&]{8,}$/; // Min 8 chars, specific symbols allowed
+
   if (!username || !email || !password) {
     req.flash('error', 'Username, email, and password are required.');
+    return res.redirect('/signup');
+  } else if (!usernameRegex.test(username)) {
+    req.flash('error', "Invalid username characters or length.");
+    return res.redirect('/signup');
+  } else if (!emailRegex.test(email)) {
+    req.flash('error', "Invalid email format.");
+    return res.redirect('/signup');
+  } else if (!passwordRegex.test(password)) {
+    req.flash('error', "Password contains invalid characters or is too short.");
     return res.redirect('/signup');
   }
 
@@ -243,10 +260,33 @@ app.post('/reviews/', async (req, res) => {
         y_coordinates: req.body.y_coordinates,
         tags: req.body.tags,
         rating: req.body.rating
+        likeCount: 0
     };
 
     await db.collection(REVIEWS).insertOne(review);
     res.redirect('/reviews');
+});
+
+// Handle like button feature
+app.post('/like', async (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+  const rr = parseInt(req.body.rr);  
+  const db = await Connection.open(mongoUri, DB);
+
+  const existingLike = await db.collection(LIKES).findOne({ userId: req.session.userId, rr });
+  if (existingLike) {
+    req.flash('error', 'You have already liked this review');
+    return res.redirect(`/review/${rr}`);
+  }
+
+  await db.collection(LIKES).insertOne({
+    userId: req.session.userId,
+    rr,
+    createdAt: new Date()
+  });
+
+  await db.collection(REVIEWS).updateOne({ rr }, { $inc: { likeCount: 1 } });
+  return res.redirect(`/review/${rr}`);
 });
 
 // Render review details page for a specific review using on required parameter: rr (review ID)
@@ -258,7 +298,10 @@ app.get('/review/:rr', async (req, res) => {
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
     if (req.session.userId != review.userId) canEdit = false;
 
-    return res.render('reviewDetails.ejs', { review, canEdit });
+    return res.render('reviewDetails.ejs', { review, canEdit 
+        flashError: req.flash('error'),
+        flashInfo: req.flash('info')
+    });
 });
 
 
