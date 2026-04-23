@@ -259,7 +259,7 @@ app.post('/reviews/', async (req, res) => {
         x_coordinates: req.body.x_coordinates,
         y_coordinates: req.body.y_coordinates,
         tags: req.body.tags,
-        rating: req.body.rating
+        rating: req.body.rating,
         likeCount: 0
     };
 
@@ -298,9 +298,10 @@ app.get('/review/:rr', async (req, res) => {
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
     if (req.session.userId != review.userId) canEdit = false;
 
-    return res.render('reviewDetails.ejs', { review, canEdit 
-        flashError: req.flash('error'),
-        flashInfo: req.flash('info')
+    return res.render('reviewDetails.ejs', { 
+      review, canEdit,
+      flashError: req.flash('error'),
+      flashInfo: req.flash('info')
     });
 });
 
