@@ -185,8 +185,8 @@ app.post('/login', async (req, res) => {
   }
 
   // Compare the provided password with the hashed password in the database
-  const passwordMatch = password == existingUser.password; // TODO: will remove, temp
-  // const passwordMatch = await bcrypt.compare(password, existingUser.password);
+  // const passwordMatch = password == existingUser.password; // TODO: will remove, temp
+  const passwordMatch = await bcrypt.compare(password, existingUser.password);
   if (!passwordMatch) {
     req.flash('error', 'Incorrect password');
     return res.redirect('/signup');
@@ -247,7 +247,7 @@ app.get('/reviews', async (req, res) => {
     if (!req.session.userId) return res.redirect('/signup');
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
-    return res.render('reviews.ejs', { reviews, flashInfo:null });
+    return res.render('reviews.ejs', { reviews });
 });
 
 // Handles review creation form submission and then redirects to updated reviews page
@@ -270,7 +270,7 @@ app.post('/reviews/', async (req, res) => {
   };
 
   await db.collection(REVIEWS).insertOne(review);
-  return res.redirect(`/review/${review_counter}`);
+  return res.redirect(`/review/${review.rr}`);
 });
 
 // Handle like button feature
