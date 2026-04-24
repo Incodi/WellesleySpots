@@ -1,4 +1,4 @@
-<form onsubmit="return !!(this.title.value || this.review.value || this.rating.value.trim() || this.location_name.value !== '' || this.tags.selectedOptions.length)" method="POST" action="/review/<%= review.rr %>/update">
+<form onsubmit="return !!(this.title.value || this.review.value || this.rating.value.trim() || this.location_name.value !== '' || this.tags.selectedOptions.length|| this.photo_caption.value || this.photo.files.length == 1)" method="POST" action="/review/<%= review.rr %>/update" enctype="multipart/form-data">
     <p>Enter at least one change in any field to update your review.</p>
     <p><label>Title: <input type="text" placeholder="<%= review.title %>" name="title"></label></p>
     <p><label>Location Area:
@@ -42,7 +42,8 @@
             <input class="numbers" type="number" placeholder="<%= review.rating %>" name="rating" step="1" min="1" max="5">
         </label>
     </p>
-    <input type="button" value="Add New Photo">
+    <p><label>Photo of Location (max. 5 MB): <input type="file" accept="image/*" name="photo"></label></p>
+    <p><label>Caption: <input type="text" name="photo_caption"></label></p>
     <p><button type="submit" class="save-changes-button">Save Changes</button>
     <button class="cancel-changes-button">Cancel</button></p>
 </form>

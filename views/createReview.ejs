@@ -1,4 +1,4 @@
-<form class="create-review" method="POST" action="/reviews/">
+<form class="create-review" method="POST" action="/reviews/" enctype="multipart/form-data">
     <p>Manually enter your coordinates or click on map to have coordinates entered in form.</p>
     <p><label>Title: <input type="text" required name="title"></label></p>
     <p><label>Location Area:
@@ -32,7 +32,7 @@
         X Coordinates: <input class="numbers" type="number" required name="x_coordinates" step="any"> 
         Y Coordinates: <input class="numbers" type="number" required name="y_coordinates" step="any">
     </label></p>
-    <p><label for="tags">Tags:</label></p>
+    <p><label>Tags:</label></p>
     <select name="tags" multiple required>
         <option value="noisy">loud</option>
         <option value="quiet">quiet</option>
@@ -57,8 +57,7 @@
         </span>
         </label>
     </p>
-        <form action="/upload" method="POST" enctype="multipart/form-data">
-            <p><label>Photo of Location: <input type="file" accept="image/*" name="photo"></label></p>
-                        <p><input type="submit" value="Submit"></p>
-        </form>
+    <p><label>Photo of Location (max. 5 MB): <input type="file" accept="image/*" name="photo"></label></p>
+    <p><label>Caption: <input type="text" name="photo_caption"></label></p>
+    <p><input type="submit" value="Submit"></p>
 </form>

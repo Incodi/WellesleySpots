@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const serveStatic = require('serve-static');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
+const multer = require("multer");
 const flash = require('express-flash');
 const counter = require('./counter-utils.js')
 
@@ -31,7 +32,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 app.use(flash());
-
+app.use('/uploads', express.static('uploads'));
 app.use(serveStatic('public'));
 app.set('view engine', 'ejs');
 
@@ -47,7 +48,7 @@ const HISTORY = 'history';
 // TODO: add the loginRequired middleware
 // TODO: edit form label in /review form
 // TODO: add more documentation
-
+// TODO: remove all console.logs
 
 // Validate email format
 function isValidEmail(email) {
@@ -63,18 +64,32 @@ function isWellesleyEmail(email) {
 for 56 seconds past 12:34. If the argument is omitted, the current
 time is used.
 */
-
 function timeString(dateObj) {
     if( !dateObj) {
         dateObj = new Date();
     }
     // convert val to two-digit string
-    d2 = (val) => val < 10 ? '0'+val : ''+val;
+    const d2 = (val) => val < 10 ? '0'+val : ''+val;
     let hh = d2(dateObj.getHours())
     let mm = d2(dateObj.getMinutes())
     let ss = d2(dateObj.getSeconds())
     return hh+mm+ss
 }
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads')
+  },
+  filename: function (req, file, cb) {
+      let parts = file.originalname.split('.');
+      let ext = parts[parts.length-1];
+      let hhmmss = timeString();
+      cb(null, file.fieldname + '-' + hhmmss + '.' + ext);
+  }
+})
+
+var upload = multer({ storage: storage,
+  // max fileSize in bytes, causes an ugly error
+  limits: {fileSize: 1024 * 1024 * 5 }});
 
 
 // Apply user session data to all routes so nav bar has conditional appearance based on login/logout state
@@ -269,7 +284,8 @@ app.get('/reviews', async (req, res) => {
 });
 
 // Handles review creation form submission and then redirects to updated reviews page
-app.post('/reviews/', async (req, res) => {
+app.post('/reviews/', upload.single('photo'), async (req, res) => {
+  if (!req.session.userId) return res.redirect('/signup');
   const db = await Connection.open(mongoUri, DB);
   const review_counter = await counter.incr(db.collection(COUNTERS), REVIEWS);
   const review = {
@@ -287,30 +303,15 @@ app.post('/reviews/', async (req, res) => {
       likeCount: 0
   };
 
-  await db.collection(REVIEWS).insertOne(review);
-  return res.redirect(`/review/${review.rr}`);
-});
-
-// Handle like button feature
-app.post('/like', async (req, res) => {
-  if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
-  const rr = parseInt(req.body.rr);  
-  const db = await Connection.open(mongoUri, DB);
-
-  const existingLike = await db.collection(LIKES).findOne({ userId: req.session.userId, rr });
-  if (existingLike) {
-    req.flash('error', 'You have already liked this review');
-    return res.redirect(`/review/${rr}`);
+  if (req.file) {
+    review.photo_path = req.file.filename;
+    if (req.body.photo_caption) {
+      review.photo_caption = req.body.photo_caption;
+    }
   }
 
-  await db.collection(LIKES).insertOne({
-    userId: req.session.userId,
-    rr,
-    createdAt: new Date()
-  });
-
-  await db.collection(REVIEWS).updateOne({ rr }, { $inc: { likeCount: 1 } });
-  return res.redirect(`/review/${rr}`);
+  await db.collection(REVIEWS).insertOne(review);
+  return res.redirect(`/review/${review.rr}`);
 });
 
 // Render review details page for a specific review using on required parameter: rr (review ID)
@@ -329,25 +330,29 @@ app.get('/review/:rr', async (req, res) => {
     });
 });
 
-
 // Update a specific review if user is author of the review
-app.post('/review/:rr/update', async (req, res) => {
+app.post('/review/:rr/update', upload.single('photo'), async (req, res) => {
     const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
+    const mutable_fields = ["title", "location_name", "review", "tags", "rating", "photo_caption", "photo"];
     let fields = {};
     let canEdit = true;
-    for (const key in req.body) {
-      if (req.body[key] !== "") {
-        fields[key] = req.body[key];
-      }
-    }
 
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
 
+    if (!review) return res.redirect('/reviews');
     if (req.session.userId != review.userId) {
       canEdit = false;
       return res.render('reviewDetails.ejs', { review, canEdit });
     }
+
+    for (const key in mutable_fields) {
+      if (req.body[key] !== undefined && req.body[key] !== "") {
+        fields[key] = req.body[key];
+      }
+    }
+
+    if (req.file) fields.photo_path = req.file.filename
 
     await db.collection(REVIEWS).updateOne({ rr: rr }, { $set: fields });
 
@@ -363,7 +368,7 @@ app.post('/review/:rr/delete', async (req, res) => {
 
     await db.collection(REVIEWS).deleteOne({ rr: rr });
 
-    res.redirect('/reviews');
+    return res.redirect('/reviews');
 });
 
 // Render search page with search form and existing locations for a dynamic dropdown filter in form
@@ -399,8 +404,29 @@ app.get('/search', async (req, res) => {
     return res.render('searches.ejs', { results, locations });
 });
 
-const serverPort = cs304.getPort(8080);
+// Handle like button feature
+app.post('/like', async (req, res) => {
+  if (!req.session.userId) return res.redirect('/signup');
+  const rr = parseInt(req.body.rr);  
+  const db = await Connection.open(mongoUri, DB);
 
+  const existingLike = await db.collection(LIKES).findOne({ userId: req.session.userId, rr });
+  if (existingLike) {
+    req.flash('error', 'You have already liked this review');
+    return res.redirect(`/review/${rr}`);
+  }
+
+  await db.collection(LIKES).insertOne({
+    userId: req.session.userId,
+    rr,
+    createdAt: new Date()
+  });
+
+  await db.collection(REVIEWS).updateOne({ rr }, { $inc: { likeCount: 1 } });
+  return res.redirect(`/review/${rr}`);
+});
+
+const serverPort = cs304.getPort(8080);
 
 app.listen(serverPort, function() {
     console.log(`listening on ${serverPort}`);

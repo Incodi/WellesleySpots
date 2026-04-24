@@ -30,6 +30,7 @@ $(document).ready(function() {
                      <i>${review.location_name}</i><br>
                      ${review.review}<br>
                      ${review.rating} stars<br>
+                     ${review.photo_path ? `<img src="/uploads/${review.photo_path}" style="width:70%;"><br>` : ''}
                      <a href="/review/${review.rr}">View Details</a>`
                 );
     });
@@ -54,6 +55,7 @@ $(document).ready(function() {
                              <i>${review.location_name}</i><br>
                              ${review.review}<br>
                              ${review.rating} stars<br>
+                             ${review.photo_path ? `<img src="/uploads/${review.photo_path}" style="width:70%"><br>` : ''}
                              <a href="/review/${review.rr}">View Details</a>`
                         )
                         .openPopup();

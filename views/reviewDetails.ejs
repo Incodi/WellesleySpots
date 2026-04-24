@@ -36,6 +36,13 @@
                 <% }) %>
             <% } %>
         </ul>
+        <% if (review.photo_path) { %>
+            <h3>Photo</h3>
+            <img src="/uploads/<%= review.photo_path %>" alt="<%= review.photo_caption || ('Image of ' + review.location_name) %>" style="width:30%;"">
+            <% if (review.photo_caption) { %>
+                <p><%= review.photo_caption %></p>
+            <% } %>
+        <% } %>
         <h3><%= review.likeCount ?? 0 %> Likes</h3>
         <% if (canEdit) { %>
             <button class="click-changes-button">Make Changes</button>
@@ -48,7 +55,6 @@
                 <button type="submit">Like Review</button>
             </form>
     <% } %>
-
     </div>
 
     <% if (canEdit) { %>
