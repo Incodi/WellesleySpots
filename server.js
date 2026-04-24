@@ -44,6 +44,11 @@ const COMMENTS = 'comments';
 const LIKES = 'likes';
 const HISTORY = 'history';
 
+// TODO: add the loginRequired middleware
+// TODO: edit form label in /review form
+// TODO: add more documentation
+
+
 // Validate email format
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -180,7 +185,8 @@ app.post('/login', async (req, res) => {
   }
 
   // Compare the provided password with the hashed password in the database
-  const passwordMatch = await bcrypt.compare(password, existingUser.password);
+  const passwordMatch = password == existingUser.password; // TODO: will remove, temp
+  // const passwordMatch = await bcrypt.compare(password, existingUser.password);
   if (!passwordMatch) {
     req.flash('error', 'Incorrect password');
     return res.redirect('/signup');

@@ -19,36 +19,36 @@
         <% } %>
 
         <h1><%= review.title %></h1>
-        <h3>By <%= review.username || 'Anonymous' %></h3>
+        <h2>By <%= review.username || 'Anonymous' %></h2>
 
-        <p><%= review.likeCount ?? 0 %> Likes</p>
-        <form action="/like" method="POST">
-            <input type="hidden" name="rr" value="<%= review.rr %>">
-            <button type="submit">Like Review</button>
-        </form>
-        
-
-        <h3>Posted <%= review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Unknown date' %></h3>
-        <h2>Location</h2>
+        <h2>Posted <%= review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Unknown date' %></h2>
+        <h3>Location</h3>
         <p><%= review.location_name %></p>
-        <h2>Rating</h2>
+        <h3>Rating</h3>
         <p><%= review.rating %> Stars</p>
-        <h2>Review</h2>
+        <h3>Review</h3>
         <p><%= review.review %></p>
-        <h2>Tags</h2>
+        <h3>Tags</h3>
         <ul>
             <% if (review.tags) { %>
-            <% (Array.isArray(review.tags) ? review.tags : [review.tags]).forEach(tag => { %>
-                <li><%= tag.trim() %></li>
-            <% }) %>
+                <% (Array.isArray(review.tags) ? review.tags : [review.tags]).forEach(tag => { %>
+                    <li><%= tag.trim() %></li>
+                <% }) %>
             <% } %>
         </ul>
+        <h3><%= review.likeCount ?? 0 %> Likes</h3>
         <% if (canEdit) { %>
             <button class="click-changes-button">Make Changes</button>
             <form class="delete-review" action="/review/<%= review.rr %>/delete" method="POST">
                 <button type="submit" class="delete-button">Delete Review</button>
             </form>
-        <% } %>
+       <% } else {%>
+            <form action="/like" method="POST">
+                <input type="hidden" name="rr" value="<%= review.rr %>">
+                <button type="submit">Like Review</button>
+            </form>
+    <% } %>
+
     </div>
 
     <% if (canEdit) { %>
@@ -56,6 +56,7 @@
             <%- include('updateReview') %>
         </div>
     <% } %>
+
     <div id="comments">
         <%- include ('comments') %>
     </div>
