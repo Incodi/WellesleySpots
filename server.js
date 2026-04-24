@@ -59,6 +59,24 @@ function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
+/* input is an (optional) date object. Returns a string like 123456 
+for 56 seconds past 12:34. If the argument is omitted, the current
+time is used.
+*/
+
+function timeString(dateObj) {
+    if( !dateObj) {
+        dateObj = new Date();
+    }
+    // convert val to two-digit string
+    d2 = (val) => val < 10 ? '0'+val : ''+val;
+    let hh = d2(dateObj.getHours())
+    let mm = d2(dateObj.getMinutes())
+    let ss = d2(dateObj.getSeconds())
+    return hh+mm+ss
+}
+
+
 // Apply user session data to all routes so nav bar has conditional appearance based on login/logout state
 app.use((req, res, next) => {
   res.locals.user = req.session.userId || null;
