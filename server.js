@@ -185,8 +185,8 @@ app.post('/login', async (req, res) => {
   }
 
   // Compare the provided password with the hashed password in the database
-  // const passwordMatch = password == existingUser.password; // TODO: will remove, temp
-  const passwordMatch = await bcrypt.compare(password, existingUser.password);
+  const passwordMatch = password == existingUser.password; // TODO: will remove, temp
+  // const passwordMatch = await bcrypt.compare(password, existingUser.password);
   if (!passwordMatch) {
     req.flash('error', 'Incorrect password');
     return res.redirect('/signup');
@@ -247,30 +247,30 @@ app.get('/reviews', async (req, res) => {
     if (!req.session.userId) return res.redirect('/signup');
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
-    return res.render('reviews.ejs', { reviews });
+    return res.render('reviews.ejs', { reviews, flashInfo:null });
 });
 
 // Handles review creation form submission and then redirects to updated reviews page
 app.post('/reviews/', async (req, res) => {
   const db = await Connection.open(mongoUri, DB);
   const review_counter = await counter.incr(db.collection(COUNTERS), REVIEWS);
-    const review = {
-        rr: review_counter, // like nm or tt
-        userId: req.session.userId || null,
-        username: req.session.username || null,
-        createdAt: new Date(),
-        title: req.body.title,
-        location_name: req.body.location_name,
-        review: req.body.review,
-        x_coordinates: req.body.x_coordinates,
-        y_coordinates: req.body.y_coordinates,
-        tags: req.body.tags,
-        rating: req.body.rating,
-        likeCount: 0
-    };
+  const review = {
+      rr: review_counter, // like nm or tt
+      userId: req.session.userId || null,
+      username: req.session.username || null,
+      createdAt: new Date(),
+      title: req.body.title,
+      location_name: req.body.location_name,
+      review: req.body.review,
+      x_coordinates: req.body.x_coordinates,
+      y_coordinates: req.body.y_coordinates,
+      tags: req.body.tags,
+      rating: req.body.rating,
+      likeCount: 0
+  };
 
-    await db.collection(REVIEWS).insertOne(review);
-    res.redirect('/reviews');
+  await db.collection(REVIEWS).insertOne(review);
+  return res.redirect(`/review/${review_counter}`);
 });
 
 // Handle like button feature
