@@ -185,8 +185,8 @@ app.post('/login', async (req, res) => {
   }
 
   // Compare the provided password with the hashed password in the database
-  const passwordMatch = password == existingUser.password; // TODO: will remove, temp
-  // const passwordMatch = await bcrypt.compare(password, existingUser.password);
+  // const passwordMatch = password == existingUser.password; // TODO: will remove, temp
+  const passwordMatch = await bcrypt.compare(password, existingUser.password);
   if (!passwordMatch) {
     req.flash('error', 'Incorrect password');
     return res.redirect('/signup');

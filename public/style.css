@@ -24,6 +24,18 @@ h2 {
     color: var(--color-green);
 }
 
+button {
+	border-radius: 10px;
+    background-color: var(--color-orange);
+    color: white;
+	margin-top: .5em;
+	padding: .5em;
+    border: none;
+}
+
+button:hover {
+	background-color: var(--color-orange-dark);
+}
 
 /* navbar */
 .navbar {
@@ -33,19 +45,26 @@ h2 {
 }
 
 .nav-menu li {
-	display: inline-block;;
+	display: inline-block;
 	margin-right: 15px;
 }
 
-.nav-menu a {
+.nav-menu a, .logout-button {
+	background-color: var(--color-green);
 	color: white;
 	padding: .25em;
 	border-radius: 10px;
 	text-decoration: none;
 }
 
-.nav-menu a:hover {
+.nav-menu a:hover, .logout-button:hover {
 	background-color: var(--color-green-dark);
+}
+
+.logout-form {
+  display: inline;
+  margin: 0;
+  padding: 0;
 }
 
 .dropdown {
@@ -102,19 +121,6 @@ h2 {
 	margin-right: 0;
 }
 
-button {
-	border-radius: 10px;
-    background-color: var(--color-orange);
-    color: white;
-	margin-top: .5em;
-	padding: .5em;
-    border: none;
-}
-
-button:hover {
-	background-color: var(--color-orange-dark);
-}
-
 .delete-button {
 	background-color: var(--color-red);
 }
@@ -123,11 +129,6 @@ button:hover {
 	background-color: var(--color-red-dark);
 }
 
-.logout-form {
-  display: inline;
-  margin: 0;
-  padding: 0;
-}
 
 .button-link {
 	display: inline-block;
