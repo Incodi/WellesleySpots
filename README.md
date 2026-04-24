@@ -1,8 +1,6 @@
-# WellesleySpots
+# Finding WellesleySpots on the Wellesley College Campus
 
-Finding WellesleySpots on the Wellesley College Campus
-
-## Description</br>
+## Description
   WellesleySpots is a web application that will allow students to find, review, and share detailed information about study locations on campus. 
 
 ## Why It’s Useful
@@ -10,45 +8,48 @@ Finding WellesleySpots on the Wellesley College Campus
 
 ## Inspiration
   We took inspiration from websites like Rate Your Professor and Tripadvisor. These websites are very helpful for finding information about things that people like and what to avoid, with user-generated ratings. Tripadvisor works similar to how we imagine our website will be, as users can rate places and the ratings are averaged and shown to other users of the website to show if an area is user-recommended or not. 
-
-To add, the witty and interesting comments in Tripadvisor were one of the biggest factors in drawing us to this idea and we want to see these types of comments and this type of community on our website, specifically in a setting related to the Wellesley College campus. 
+  
+  To add, the witty and interesting comments in Tripadvisor were one of the biggest factors in drawing us to this idea and we want to see these types of comments and this type of community on our website, specifically in a setting related to the Wellesley College campus. 
 
 ## Features
-Email verification since the user must be a Wellesley College student. We will enforce this both through a simple front-end check that will confirm the user input an email ending in @wellesley.edu and through an email verification API that will send users an email to confirm the validity behind their input. This will also increase trust in our website by guaranteeing users that they are talking to real Wellesley College students
+Email verification since the user must be a Wellesley College student. We will enforce this through a simple front-end check that will confirm the user input an email ending in @wellesley.edu. This will also increase trust in our website by guaranteeing users that they are talking to real Wellesley College students
 
-Users will be able to filter locations using tags. These tags could include noise level or if there is easy access to food, such as through a cafe. This will ensure users can easily find study locations that best fit their needs. 
+Users will be able to filter locations using tags. These tags could include noise level. This will ensure users can easily find study locations that best fit their needs. 
 
 Users can add a pin for a location on the Wellesley College campus map where they can then input their review of the location. Making the process to start a review as easy as possible by letting users just click on a map (using a map API Leaflet) promotes app usability.
 
-Users can write a short text review for places and can also upload a photo. After clicking on our map, a user will answer a series of questions, such as the name of the location, adding tags, rating out of 5 stars, a general description review, and an image. This is the main component of our application that ensures users get to see the feedback and opinions of other students. 
-
-Users can save locations in their private collections (for example, want to visit or have visited). This allows users to reflect on past study locations they’ve visited and keep track of future locations they could go to. 
-
-Administrators can manage and moderate the website’s database. To combat any potential harmful language or behaviors on the website, designated administrators of the site should be able to delete the reviews of other users. 
+Users can write a short text review for places and can also upload a photo. A user also has to answer other questions, such as the name of the location, adding tags, rating out of 5 stars, a general description review, and an image. This is the main component of our application that ensures users get to see the feedback and opinions of other students. 
 
 ## Data to be Collected 
-The database will have three main collections: users, locations, and reviews. 
+The database will have two main collections: users and reviews. 
 
 Users store details like name, email, passwords, and role. 
-
-Locations store details like name, coordinates, hours. 
 
 Reviews store user ID, location ID, ratings, text, photo filename, tags, and timestamp.
 
 Queries should include features like retrieving a specific user's review history and getting average ranking of locations for display. 
 
-Updates to the database will have to occur in situations where users submit reviews, edit their profile, or when administrators moderate content. 
+Web forms will need to handle user registration, login, review creation, and photo uploads.
 
-Web forms will need to handle user registration, login, review submission, and photo uploads.
 
-## Technical Implementation
-As with most websites, it is built with HTML, CSS, and Javascript.
+## Programmers
+[Gloria](https://github.com/gloriapul) & [Clara](https://github.com/Incodi)
 
-We will need to implement web forms which will connect to our database and share information. This will connect to NodeJS and MongoDB servers.
+## Status
 
-Will have to use AJAX for database queries. This will help with making website updates asynchronous and always updating, showing the newest information at all times. 
+WellesleySpots is near completion. As it currently stands, we support review creation, deletion, and modification. Users also have the ability to search for other reviews and like them. We currently need to add comments, complete our collections page, and support stronger profile customization options such as resetting passwords. 
 
-We will need to implement a map on the website, for example, using Leaflet. Users can just click on the map to add a pin with coordinates that are automatically generated using the API. 
+## Directions for use 
 
-We will also need to use an email verification API and learn how to incorporate and test that in our site. 
-
+1. To get started, sign up or log into account
+2. You can find your account information in profile page
+3. View reviews under Review → Create Review element in navigation bar 
+- Can click the marker to View Details, which will show the expanded version of the review with a placeholder for a comments section that will be implemented in a future version
+4. Create review on that same page in form
+- Each field, except for photo, must be filled out
+- Upon form submission, you will be redirected to your newly created review
+4. Modify or delete your review
+5. Search for other reviews under Review → Search Reviews element in navigation bar 
+- Can fill out any field as long as at least one is filled out
+6. Can like other reviews
+7. Find your own reviews and liked reviews in Collections page
