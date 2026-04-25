@@ -63,6 +63,21 @@ function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
+function buildHistoryEntry({ userId, action, rr, title, location_name, createdAt }) {
+  return {
+    userId,
+    action,
+    rr,
+    title: title || null,
+    location_name: location_name || null,
+    createdAt: createdAt || new Date()
+  };
+}
+
+async function recordHistory(db, entry) {
+  await db.collection(HISTORY).insertOne(entry);
+}
+
 /// Generate string for a photo's file path using a date
 function timeString(dateObj) {
   if( !dateObj) dateObj = new Date();
@@ -253,12 +268,80 @@ app.get('/collections', loginRequired, async (req, res) => { // redirects to sig
   const userId = req.session.userId;
 
   // Basic collection quires for each collection type, sorted by most recent first
-  const [reviews, comments, likes, history] = await Promise.all([
+  const [reviews, comments, likes, storedHistory] = await Promise.all([
     db.collection(REVIEWS).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(COMMENTS).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(LIKES).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(HISTORY).find({userId}).sort({createdAt: -1}).toArray()
   ]);
+
+  // Likes only store rr historically; enrich with review title/location for display.
+  const likedRrs = likes
+    .map((like) => like.rr)
+    .filter((rr) => typeof rr === 'number');
+  const likedReviewDocs = likedRrs.length
+    ? await db.collection(REVIEWS).find({ rr: { $in: likedRrs } }).project({ rr: 1, title: 1, location_name: 1 }).toArray()
+    : [];
+  const likedReviewByRr = new Map(likedReviewDocs.map((review) => [review.rr, review]));
+
+  const enrichedLikes = likes.map((like) => {
+    const review = likedReviewByRr.get(like.rr) || {};
+    return {
+      ...like,
+      title: like.title || review.title || null,
+      location_name: like.location_name || review.location_name || null
+    };
+  });
+
+  // Build fallback history from canonical collections so older data still appears.
+  const derivedHistory = [];
+
+  for (const review of reviews) {
+    derivedHistory.push(buildHistoryEntry({
+      userId,
+      action: 'review_created',
+      rr: review.rr,
+      title: review.title,
+      location_name: review.location_name,
+      createdAt: review.createdAt
+    }));
+
+    if (review.editedAt) {
+      derivedHistory.push(buildHistoryEntry({
+        userId,
+        action: 'review_edited',
+        rr: review.rr,
+        title: review.title,
+        location_name: review.location_name,
+        createdAt: review.editedAt
+      }));
+    }
+  }
+
+  for (const like of enrichedLikes) {
+    derivedHistory.push(buildHistoryEntry({
+      userId,
+      action: 'review_liked',
+      rr: like.rr,
+      title: like.title,
+      location_name: like.location_name,
+      createdAt: like.createdAt
+    }));
+  }
+
+  const mergedHistory = [...storedHistory, ...derivedHistory];
+  const seen = new Set();
+  const history = mergedHistory.filter((item) => {
+    const t = item.createdAt ? new Date(item.createdAt).getTime() : 0;
+    const key = `${item.action || item.type || 'activity'}:${item.rr || 'na'}:${t}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).sort((a, b) => {
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return bTime - aTime;
+  });
 
   return res.render('collections', {
     currentPath: '/collections',
@@ -267,7 +350,7 @@ app.get('/collections', loginRequired, async (req, res) => { // redirects to sig
     email: req.session.email || null,
     reviews,
     comments,
-    likes,
+    likes: enrichedLikes,
     history
   });
 });
@@ -306,6 +389,15 @@ app.post('/reviews/', loginRequired, upload.single('photo'), async (req, res) =>
   }
 
   await db.collection(REVIEWS).insertOne(review);
+  await recordHistory(db, buildHistoryEntry({
+    userId: req.session.userId,
+    action: 'review_created',
+    rr: review.rr,
+    title: review.title,
+    location_name: review.location_name,
+    createdAt: review.createdAt
+  }));
+
   return res.redirect(`/review/${review.rr}`);
 });
 
@@ -340,15 +432,32 @@ app.post('/review/:rr/update', loginRequired, upload.single('photo'), async (req
       return res.render('reviewDetails.ejs', { review, canEdit });
     }
 
-    for (const key in mutable_fields) {
+    for (const key of mutable_fields) {
       if (req.body[key] !== undefined && req.body[key] !== "") {
         fields[key] = req.body[key];
       }
     }
 
-    if (req.file) fields.photo_path = req.file.filename
+    if (req.file) fields.photo_path = req.file.filename;
+
+    if (Object.keys(fields).length === 0) {
+      req.flash('error', 'Please provide at least one change before saving.');
+      return res.redirect(`/review/${rr}`);
+    }
+
+    fields.editedAt = new Date();
 
     await db.collection(REVIEWS).updateOne({ rr: rr }, { $set: fields });
+
+    const updatedReview = await db.collection(REVIEWS).findOne({ rr: rr });
+    await recordHistory(db, buildHistoryEntry({
+      userId: req.session.userId,
+      action: 'review_edited',
+      rr,
+      title: updatedReview?.title || review.title,
+      location_name: updatedReview?.location_name || review.location_name,
+      createdAt: fields.editedAt
+    }));
 
     return res.redirect(`/review/${rr}`);
 });
@@ -403,6 +512,12 @@ app.post('/like', loginRequired, async (req, res) => {
   const rr = parseInt(req.body.rr);  
   const db = await Connection.open(mongoUri, DB);
 
+  const review = await db.collection(REVIEWS).findOne({ rr });
+  if (!review) {
+    req.flash('error', 'Review not found');
+    return res.redirect('/reviews');
+  }
+
   const existingLike = await db.collection(LIKES).findOne({ userId: req.session.userId, rr });
   if (existingLike) {
     req.flash('error', 'You have already liked this review');
@@ -412,8 +527,19 @@ app.post('/like', loginRequired, async (req, res) => {
   await db.collection(LIKES).insertOne({
     userId: req.session.userId,
     rr,
+    title: review.title || null,
+    location_name: review.location_name || null,
     createdAt: new Date()
   });
+
+  await recordHistory(db, buildHistoryEntry({
+    userId: req.session.userId,
+    action: 'review_liked',
+    rr,
+    title: review.title,
+    location_name: review.location_name,
+    createdAt: new Date()
+  }));
 
   await db.collection(REVIEWS).updateOne({ rr }, { $inc: { likeCount: 1 } });
   return res.redirect(`/review/${rr}`);

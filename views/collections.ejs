@@ -51,7 +51,12 @@
                 <ul>
                     <% likes.forEach(function(like) { %>
                         <li>
-                            <strong><%= like.location_name || like.title || 'Liked item' %></strong>
+                            <% const likedLabel = like.location_name || like.title || (like.rr ? ('Review #' + like.rr) : 'Liked review'); %>
+                            <% if (like.rr) { %>
+                                <strong><a href="/review/<%= like.rr %>"><%= likedLabel %></a></strong>
+                            <% } else { %>
+                                <strong><%= likedLabel %></strong>
+                            <% } %>
                             <% if (like.createdAt) { %>
                                 <small>Liked <%= new Date(like.createdAt).toLocaleString() %></small>
                             <% } %>
@@ -69,8 +74,18 @@
                 <ul>
                     <% history.forEach(function(item) { %>
                         <li>
-                            <strong><%= item.type || 'Activity' %></strong>
-                            <span><%= item.location_name || item.title || item.review || item.comment || '' %></span>
+                            <% const action = item.action || item.type || 'activity'; %>
+                            <% let actionLabel = 'Activity'; %>
+                            <% if (action === 'review_created') actionLabel = 'Reviewed'; %>
+                            <% if (action === 'review_edited') actionLabel = 'Edited review'; %>
+                            <% if (action === 'review_liked') actionLabel = 'Liked review'; %>
+                            <% const activityLabel = item.location_name || item.title || (item.rr ? ('Review #' + item.rr) : ''); %>
+                            <strong><%= actionLabel %></strong>
+                            <% if (item.rr) { %>
+                                <span><a href="/review/<%= item.rr %>"><%= activityLabel %></a></span>
+                            <% } else { %>
+                                <span><%= activityLabel %></span>
+                            <% } %>
                             <% if (item.createdAt) { %>
                                 <small> - <%= new Date(item.createdAt).toLocaleString() %></small>
                             <% } %>
