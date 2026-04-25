@@ -275,16 +275,21 @@ app.get('/collections', loginRequired, async (req, res) => { // redirects to sig
     db.collection(HISTORY).find({userId}).sort({createdAt: -1}).toArray()
   ]);
 
-  // Likes only store rr historically; enrich with review title/location for display.
+  // Likes: add title and location_name to each like 
+  // based on the review that was liked, 
+  // so that the user can see what they liked without having to click into each review
   const likedRrs = likes
     .map((like) => like.rr)
     .filter((rr) => typeof rr === 'number');
   const likedReviewDocs = likedRrs.length
-    ? await db.collection(REVIEWS).find({ rr: { $in: likedRrs } }).project({ rr: 1, title: 1, location_name: 1 }).toArray()
+    ? await db.collection(REVIEWS)
+    .find({ rr: { $in: likedRrs } })
+    .project({ rr: 1, title: 1, location_name: 1 })
+    .toArray()
     : [];
   const likedReviewByRr = new Map(likedReviewDocs.map((review) => [review.rr, review]));
 
-  const enrichedLikes = likes.map((like) => {
+  const mappedLikes = likes.map((like) => {
     const review = likedReviewByRr.get(like.rr) || {};
     return {
       ...like,
@@ -293,55 +298,9 @@ app.get('/collections', loginRequired, async (req, res) => { // redirects to sig
     };
   });
 
-  // Build fallback history from canonical collections so older data still appears.
-  const derivedHistory = [];
-
-  for (const review of reviews) {
-    derivedHistory.push(buildHistoryEntry({
-      userId,
-      action: 'review_created',
-      rr: review.rr,
-      title: review.title,
-      location_name: review.location_name,
-      createdAt: review.createdAt
-    }));
-
-    if (review.editedAt) {
-      derivedHistory.push(buildHistoryEntry({
-        userId,
-        action: 'review_edited',
-        rr: review.rr,
-        title: review.title,
-        location_name: review.location_name,
-        createdAt: review.editedAt
-      }));
-    }
-  }
-
-  for (const like of enrichedLikes) {
-    derivedHistory.push(buildHistoryEntry({
-      userId,
-      action: 'review_liked',
-      rr: like.rr,
-      title: like.title,
-      location_name: like.location_name,
-      createdAt: like.createdAt
-    }));
-  }
-
-  const mergedHistory = [...storedHistory, ...derivedHistory];
-  const seen = new Set();
-  const history = mergedHistory.filter((item) => {
-    const t = item.createdAt ? new Date(item.createdAt).getTime() : 0;
-    const key = `${item.action || item.type || 'activity'}:${item.rr || 'na'}:${t}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  }).sort((a, b) => {
-    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    return bTime - aTime;
-  });
+  // History collection.
+  // Every activity done before this was implemented is not in here.
+  const history = storedHistory;
 
   return res.render('collections', {
     currentPath: '/collections',
@@ -350,7 +309,7 @@ app.get('/collections', loginRequired, async (req, res) => { // redirects to sig
     email: req.session.email || null,
     reviews,
     comments,
-    likes: enrichedLikes,
+    likes: mappedLikes,
     history
   });
 });

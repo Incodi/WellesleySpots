@@ -51,7 +51,7 @@
                 <ul>
                     <% likes.forEach(function(like) { %>
                         <li>
-                            <% const likedLabel = like.location_name || like.title || (like.rr ? ('Review #' + like.rr) : 'Liked review'); %>
+                            <% const likedLabel = like.title || (like.rr ? ('Review #' + like.rr) : 'Liked review'); %>
                             <% if (like.rr) { %>
                                 <strong><a href="/review/<%= like.rr %>"><%= likedLabel %></a></strong>
                             <% } else { %>
@@ -79,7 +79,7 @@
                             <% if (action === 'review_created') actionLabel = 'Reviewed'; %>
                             <% if (action === 'review_edited') actionLabel = 'Edited review'; %>
                             <% if (action === 'review_liked') actionLabel = 'Liked review'; %>
-                            <% const activityLabel = item.location_name || item.title || (item.rr ? ('Review #' + item.rr) : ''); %>
+                            <% const activityLabel = item.title || (item.rr ? ('Review #' + item.rr) : ''); %>
                             <strong><%= actionLabel %></strong>
                             <% if (item.rr) { %>
                                 <span><a href="/review/<%= item.rr %>"><%= activityLabel %></a></span>
