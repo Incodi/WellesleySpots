@@ -49,7 +49,7 @@ button:hover {
 	margin-right: 15px;
 }
 
-.nav-menu a, .logout-button {
+.nav-menu a, #logout-button {
 	background-color: var(--color-green);
 	color: white;
 	padding: .25em;
@@ -57,7 +57,7 @@ button:hover {
 	text-decoration: none;
 }
 
-.nav-menu a:hover, .logout-button:hover {
+.nav-menu a:hover, #logout-button:hover {
 	background-color: var(--color-green-dark);
 }
 
@@ -129,17 +129,6 @@ button:hover {
 	background-color: var(--color-red-dark);
 }
 
-
-.button-link {
-	display: inline-block;
-	padding: 8px 12px;
-	margin-top: 10px;
-	background-color: var(--color-orange);
-	color: white;
-	text-decoration: none;
-}
-
-
 /* popup message */
 .message {
 	margin-top: 10px;
@@ -148,33 +137,42 @@ button:hover {
 
 
 /* reviews */
-form, #review, #comments, .change-review {
+form, #review, #comments, #change-review {
     background-color: var(--color-green-light);
     padding: .5em;
     border-radius: 10px;
 }
 
- #review, #comments, .change-review {
+ #review, #comments, #change-review {
 	margin: 1em;
  }
 
-.filter-reviews {
+#filter-reviews {
 	width: 500px;
 	height: 450px;
 }
 
-.create-review {
+#create-review {
 	width: 500px;
 	height: 850px;
 }
 
-.click-changes-button,
-.delete-review {
+.reviews, #search-section {
+	display: flex;
+	gap: 1em;
+	align-items: flex-start;
+}
+
+#create-section {
+	flex: 1;
+}
+
+#click-changes-button, #delete-review {
     display: inline-block;
     margin: 0;
 }
 
-.cancel-changes-button {
+#cancel-changes-button {
 	margin: .5em;
 }
 
@@ -190,27 +188,29 @@ select, form select, form input, form textarea {
 input::placeholder, textarea::placeholder {
 	color: rgba(2, 69, 6, 0.844);
 }
-form textarea {
-	resize: none;
-}
 
 form select, form input {
 	width: 50%;
+}
+
+textarea {
+	resize: none;
+}
+
+input, textarea, select {
+	cursor: pointer;
 }
 
 form input[type="submit"] {
 	width: 30%;
 }
 
-select option:checked {
-	background-color: var(--color-green-link);
-}
-input, textarea, select {
-	cursor: pointer;
-}
-
 input[type="submit"]:hover {
     background-color: var(--color-green-dark);
+}
+
+select option:checked {
+	background-color: var(--color-green-link);
 }
 
 .numbers {
@@ -235,14 +235,4 @@ input[type="submit"]:hover {
 /* make current hovered one yellow, stars before it yellow, and maintain yellow once clicked */
 .stars label:hover, .stars label:hover ~ label, .stars input[type="radio"]:checked ~ label {
 	color: #ffd84d;
-}
-
-.reviews, #search-section {
-	display: flex;
-	gap: 1em;
-	align-items: flex-start;
-}
-
-#create-section, #result-section {
-	flex: 1;
 }

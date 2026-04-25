@@ -1,12 +1,14 @@
 'use strict';
+
 $(document).ready(function() {
-    const map = L.map('map').setView([42.293243, -71.305604], 16);
+    const map = L.map('map').setView([42.293243, -71.305604], 16); // set to Wellesley's campus
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
+    // inserts coordinates into review creation form
     function onMapClick(e) {
         const xCoordinates = $('input[name="x_coordinates"]');
         const yCoordinates = $('input[name="y_coordinates"]');

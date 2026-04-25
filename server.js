@@ -20,7 +20,6 @@ const app = express();
 app.use(morgan('tiny'));
 app.use(cs304.logStartRequest);
 
-// This handles POST data
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -31,6 +30,7 @@ app.use(cookieSession({
   keys: [cs304.randomString(20)],
   maxAge: 24 * 60 * 60 * 1000
 }));
+
 app.use(flash());
 app.use('/uploads', express.static('uploads'));
 app.use(serveStatic('public'));
@@ -45,10 +45,13 @@ const COMMENTS = 'comments';
 const LIKES = 'likes';
 const HISTORY = 'history';
 
-// TODO: add the loginRequired middleware
 // TODO: edit form label in /review form
 // TODO: add more documentation
-// TODO: remove all console.logs
+
+function loginRequired(req, res, next) {
+  if (!req.session.userId) return res.redirect('/signup');
+  next();
+}
 
 // Validate email format
 function isValidEmail(email) {
@@ -60,21 +63,17 @@ function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
-/* input is an (optional) date object. Returns a string like 123456 
-for 56 seconds past 12:34. If the argument is omitted, the current
-time is used.
-*/
+/// Generate string for a photo's file path using a date
 function timeString(dateObj) {
-    if( !dateObj) {
-        dateObj = new Date();
-    }
-    // convert val to two-digit string
-    const d2 = (val) => val < 10 ? '0'+val : ''+val;
-    let hh = d2(dateObj.getHours())
-    let mm = d2(dateObj.getMinutes())
-    let ss = d2(dateObj.getSeconds())
-    return hh+mm+ss
+  if( !dateObj) dateObj = new Date();
+  // convert val to two-digit string
+  const d2 = (val) => val < 10 ? '0'+val : ''+val;
+  let hh = d2(dateObj.getHours())
+  let mm = d2(dateObj.getMinutes())
+  let ss = d2(dateObj.getSeconds())
+  return hh+mm+ss
 }
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads')
@@ -88,9 +87,7 @@ var storage = multer.diskStorage({
 })
 
 var upload = multer({ storage: storage,
-  // max fileSize in bytes, causes an ugly error
-  limits: {fileSize: 1024 * 1024 * 5 }});
-
+  limits: {fileSize: 1024 * 1024 * 5 }}); // max 5 MB
 
 // Apply user session data to all routes so nav bar has conditional appearance based on login/logout state
 app.use((req, res, next) => {
@@ -239,8 +236,8 @@ app.post('/logout', (req, res) => {
   return res.redirect('/signup');
 });
 
-app.get('/profile', (req, res) => { // redirects to signup if no user ID
-  if (!req.session.userId) return res.redirect('/signup');
+// Retrieves user's profile page
+app.get('/profile', loginRequired, (req, res) => { // redirects to signup if no user ID
   return res.render('profile', {
     currentPath: '/profile',
     userId: req.session.userId,
@@ -249,8 +246,8 @@ app.get('/profile', (req, res) => { // redirects to signup if no user ID
   });
 });
 
-app.get('/collections', async (req, res) => { // redirects to signup if no user ID
-  if (!req.session.userId) return res.redirect('/signup');
+// Retrieves user's relevant data, including reviews they created and liked in one page
+app.get('/collections', loginRequired, async (req, res) => { // redirects to signup if no user ID
 
   const db = await Connection.open(mongoUri, DB);
   const userId = req.session.userId;
@@ -276,16 +273,14 @@ app.get('/collections', async (req, res) => { // redirects to signup if no user 
 });
 
 // Render reviews page with all review creation form and existing reviews shown in map view
-app.get('/reviews', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/signup');
+app.get('/reviews', loginRequired, async (req, res) => {
     const db = await Connection.open(mongoUri, DB);
     const reviews = await db.collection(REVIEWS).find({}).toArray();
     return res.render('reviews.ejs', { reviews });
 });
 
-// Handles review creation form submission and then redirects to updated reviews page
-app.post('/reviews/', upload.single('photo'), async (req, res) => {
-  if (!req.session.userId) return res.redirect('/signup');
+// Creates a review for a particular location and then redirects to the newly created review upon successful completion
+app.post('/reviews/', loginRequired, upload.single('photo'), async (req, res) => {
   const db = await Connection.open(mongoUri, DB);
   const review_counter = await counter.incr(db.collection(COUNTERS), REVIEWS);
   const review = {
@@ -315,8 +310,7 @@ app.post('/reviews/', upload.single('photo'), async (req, res) => {
 });
 
 // Render review details page for a specific review using on required parameter: rr (review ID)
-app.get('/review/:rr', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/signup');
+app.get('/review/:rr', loginRequired, async (req, res) => {
     const rr = parseInt(req.params.rr);
     let canEdit = true;
     const db = await Connection.open(mongoUri, DB);
@@ -331,7 +325,7 @@ app.get('/review/:rr', async (req, res) => {
 });
 
 // Update a specific review if user is author of the review
-app.post('/review/:rr/update', upload.single('photo'), async (req, res) => {
+app.post('/review/:rr/update', loginRequired, upload.single('photo'), async (req, res) => {
     const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
     const mutable_fields = ["title", "location_name", "review", "tags", "rating", "photo_caption", "photo"];
@@ -360,7 +354,7 @@ app.post('/review/:rr/update', upload.single('photo'), async (req, res) => {
 });
 
 // Delete a specific review if user is author of the review
-app.post('/review/:rr/delete', async (req, res) => {
+app.post('/review/:rr/delete', loginRequired, async (req, res) => {
     const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
@@ -372,8 +366,7 @@ app.post('/review/:rr/delete', async (req, res) => {
 });
 
 // Render search page with search form and existing locations for a dynamic dropdown filter in form
-app.get('/searches', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/signup');
+app.get('/searches', loginRequired, async (req, res) => {
     const db = await Connection.open(mongoUri, DB);
     const locations = await db.collection(REVIEWS).distinct('location_name', {});
 
@@ -383,9 +376,9 @@ app.get('/searches', async (req, res) => {
     });
 });
 
-// Retrieves reviews that fit search criteria, location, rating, or tag(s) and renders search page with results and existing locations for dropdown filter in form
-app.get('/search', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/signup');
+// Retrieves reviews that fit search criteria, location, rating, or tag(s) 
+// and renders search page with results and existing locations for dropdown filter in form
+app.get('/search', loginRequired, async (req, res) => {
     const { location, rating, filter_tags } = req.query;
 
     const db = await Connection.open(mongoUri, DB);
@@ -404,9 +397,9 @@ app.get('/search', async (req, res) => {
     return res.render('searches.ejs', { results, locations });
 });
 
-// Handle like button feature
-app.post('/like', async (req, res) => {
-  if (!req.session.userId) return res.redirect('/signup');
+// Increments or initializes a like counter for a review
+// Users can only like a review once
+app.post('/like', loginRequired, async (req, res) => {
   const rr = parseInt(req.body.rr);  
   const db = await Connection.open(mongoUri, DB);
 

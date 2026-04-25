@@ -45,8 +45,8 @@
         <% } %>
         <h3><%= review.likeCount ?? 0 %> Likes</h3>
         <% if (canEdit) { %>
-            <button class="click-changes-button">Make Changes</button>
-            <form class="delete-review" action="/review/<%= review.rr %>/delete" method="POST">
+            <button id="click-changes-button">Make Changes</button>
+            <form id="delete-review" action="/review/<%= review.rr %>/delete" method="POST">
                 <button type="submit" class="delete-button">Delete Review</button>
             </form>
        <% } else {%>
@@ -58,7 +58,7 @@
     </div>
 
     <% if (canEdit) { %>
-        <div class="change-review" style="display: none;">
+        <div id="change-review" style="display: none;">
             <%- include('updateReview') %>
         </div>
     <% } %>
