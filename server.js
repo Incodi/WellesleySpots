@@ -45,9 +45,8 @@ const COMMENTS = 'comments';
 const LIKES = 'likes';
 const HISTORY = 'history';
 
-// TODO: edit form label in /review form
-// TODO: add more documentation
 
+// middleware to require login for certain routes
 function loginRequired(req, res, next) {
   if (!req.session.userId) return res.redirect('/signup');
   next();
@@ -135,7 +134,7 @@ app.get('/signup', (req, res) => {
   });
 });
 
-// Redirect /login to /signup for now since we have a combined signup/login page
+// Redirect /login to /signup since we have a combined signup/login page
 app.get('/login', (req, res) => {
   return res.redirect('/signup');
 });
@@ -230,7 +229,6 @@ app.post('/login', async (req, res) => {
   }
 
   // Compare the provided password with the hashed password in the database
-  // const passwordMatch = password == existingUser.password; // TODO: will remove, temp
   const passwordMatch = await bcrypt.compare(password, existingUser.password);
   if (!passwordMatch) {
     req.flash('error', 'Incorrect password');
@@ -251,8 +249,8 @@ app.post('/logout', (req, res) => {
   return res.redirect('/signup');
 });
 
-// Retrieves user's profile page
-app.get('/profile', loginRequired, (req, res) => { // redirects to signup if no user ID
+// Retrieves user's profile information
+app.get('/profile', loginRequired, (req, res) => {
   return res.render('profile', {
     currentPath: '/profile',
     userId: req.session.userId,
@@ -261,13 +259,13 @@ app.get('/profile', loginRequired, (req, res) => { // redirects to signup if no 
   });
 });
 
-// Retrieves user's relevant data, including reviews they created and liked in one page
+// Retrieves user's relevant data, including reviews they've created and liked in one page
 app.get('/collections', loginRequired, async (req, res) => { // redirects to signup if no user ID
 
   const db = await Connection.open(mongoUri, DB);
   const userId = req.session.userId;
 
-  // Basic collection quires for each collection type, sorted by most recent first
+  // Basic collection queries for each collection type, sorted by most recent first
   const [reviews, comments, likes, storedHistory] = await Promise.all([
     db.collection(REVIEWS).find({userId}).sort({createdAt: -1}).toArray(),
     db.collection(COMMENTS).find({userId}).sort({createdAt: -1}).toArray(),
@@ -298,8 +296,8 @@ app.get('/collections', loginRequired, async (req, res) => { // redirects to sig
     };
   });
 
-  // History collection.
-  // Every activity done before this was implemented is not in here.
+  // Tracks user's history of actions such as creating, liking, and editing reviews on the site
+  // Any activity done before this was implemented is not in here.
   const history = storedHistory;
 
   return res.render('collections', {
@@ -366,6 +364,7 @@ app.get('/review/:rr', loginRequired, async (req, res) => {
     let canEdit = true;
     const db = await Connection.open(mongoUri, DB);
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
+    if (!review) return res.redirect('/reviews');
     if (req.session.userId != review.userId) canEdit = false;
 
     return res.render('reviewDetails.ejs', { 
@@ -421,7 +420,7 @@ app.post('/review/:rr/update', loginRequired, upload.single('photo'), async (req
     return res.redirect(`/review/${rr}`);
 });
 
-// Delete a specific review if user is author of the review
+// Delete a specific review, only if user is author of the review
 app.post('/review/:rr/delete', loginRequired, async (req, res) => {
     const rr = parseInt(req.params.rr);
     const db = await Connection.open(mongoUri, DB);
@@ -444,8 +443,8 @@ app.get('/searches', loginRequired, async (req, res) => {
     });
 });
 
-// Retrieves reviews that fit search criteria, location, rating, or tag(s) 
-// and renders search page with results and existing locations for dropdown filter in form
+// Retrieves reviews that fit search criteria including location, rating, and/or tag(s) 
+// and renders search page with results
 app.get('/search', loginRequired, async (req, res) => {
     const { location, rating, filter_tags } = req.query;
 
@@ -472,10 +471,7 @@ app.post('/like', loginRequired, async (req, res) => {
   const db = await Connection.open(mongoUri, DB);
 
   const review = await db.collection(REVIEWS).findOne({ rr });
-  if (!review) {
-    req.flash('error', 'Review not found');
-    return res.redirect('/reviews');
-  }
+  if (!review) return res.redirect('/reviews');
 
   const existingLike = await db.collection(LIKES).findOne({ userId: req.session.userId, rr });
   if (existingLike) {

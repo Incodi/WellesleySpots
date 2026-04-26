@@ -137,13 +137,13 @@ button:hover {
 
 
 /* reviews */
-form, #review, #comments, #change-review {
+form, #review-details, #comments, #change-review {
     background-color: var(--color-green-light);
     padding: .5em;
     border-radius: 10px;
 }
 
- #review, #comments, #change-review {
+ #review-details, #comments, #change-review {
 	margin: 1em;
  }
 

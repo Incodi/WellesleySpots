@@ -3,7 +3,7 @@
 // Flips review's state to either the view or update mode
 function showUpdate() {
     $('#change-review').toggle();
-    $('#review').toggle();
+    $('#review-details').toggle();
     $('#click-changes-button').toggle()
 }
 

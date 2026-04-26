@@ -1,8 +1,8 @@
 <form id="create-review" method="POST" action="/reviews/" enctype="multipart/form-data">
     <p>Manually enter your coordinates or click on map to have coordinates entered in form.</p>
     <p><label>Title: <input type="text" required name="title"></label></p>
-    <p><label>Location Area:
-        <select name="location_name" required>
+    <p><label for="location_name">Location Area:
+        <select id="location_name" name="location_name" required>
             <option value="" disabled selected>Select location</option>
             <option value="Science Center">Science Center</option>
             <option value="Lulu">Lulu</option>
@@ -27,13 +27,13 @@
             <option value="Other">Other</option>
         </select>
     </label></p>
-    <p><label>Review:<br><textarea cols="50" rows="10" required name="review"></textarea></label></p>
+    <p><label for="review">Review:<br><textarea id="review" cols="50" rows="10" required name="review"></textarea></label></p>
     <p><label>
         X Coordinates: <input class="numbers" type="number" required name="x_coordinates" step="any"> 
         Y Coordinates: <input class="numbers" type="number" required name="y_coordinates" step="any">
     </label></p>
-    <p><label>Tags:</label></p>
-    <select name="tags" multiple required>
+    <p><label for="tags">Tags:
+    <select id="tags" name="tags" multiple required>
         <option value="noisy">loud</option>
         <option value="quiet">quiet</option>
         <option value="empty">empty</option>
@@ -41,7 +41,7 @@
         <option value="clean">clean</option>
         <option value="natural light">natural light</option>
     </select>
-    </label>
+    </label></p>
     <p><label>Rating:
         <span class="stars">
             <input type="radio" id="star5" name="rating" value="5" required/>

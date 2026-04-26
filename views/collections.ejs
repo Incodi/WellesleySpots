@@ -17,7 +17,7 @@
                 <ul>
                     <% reviews.forEach(function(review) { %>
                         <li>
-                            <a href="/review/<%= review.rr %>"><%= review.title %> (posted <%= new Date(review.createdAt).toLocaleString() %>)</a>
+                            <a href="/review/<%= review.rr %>"><%= review.title %></a> (posted <%= new Date(review.createdAt).toLocaleString() %>)
                         </li>
                     <% }) %>
                 </ul>
@@ -51,14 +51,14 @@
                 <ul>
                     <% likes.forEach(function(like) { %>
                         <li>
-                            <% const likedLabel = like.title || (like.rr ? ('Review #' + like.rr) : 'Liked review'); %>
-                            <% if (like.rr) { %>
-                                <strong><a href="/review/<%= like.rr %>"><%= likedLabel %></a></strong>
+                            <% const likedLabel = like.title || 'Review cannot be retrieved'; %>
+                            <% if (like.rr && like.title) { %>
+                                <a href="/review/<%= like.rr %>"><%= likedLabel %></a>
                             <% } else { %>
-                                <strong><%= likedLabel %></strong>
+                                <%= likedLabel %>
                             <% } %>
                             <% if (like.createdAt) { %>
-                                <small>Liked <%= new Date(like.createdAt).toLocaleString() %></small>
+                                (liked <%= new Date(like.createdAt).toLocaleString() %>)
                             <% } %>
                         </li>
                     <% }) %>
@@ -76,9 +76,9 @@
                         <li>
                             <% const action = item.action || item.type || 'activity'; %>
                             <% let actionLabel = 'Activity'; %>
-                            <% if (action === 'review_created') actionLabel = 'Reviewed'; %>
-                            <% if (action === 'review_edited') actionLabel = 'Edited review'; %>
-                            <% if (action === 'review_liked') actionLabel = 'Liked review'; %>
+                            <% if (action === 'review_created') actionLabel = 'Reviewed:'; %>
+                            <% if (action === 'review_edited') actionLabel = 'Edited review:'; %>
+                            <% if (action === 'review_liked') actionLabel = 'Liked review:'; %>
                             <% const activityLabel = item.title || (item.rr ? ('Review #' + item.rr) : ''); %>
                             <strong><%= actionLabel %></strong>
                             <% if (item.rr) { %>
@@ -87,7 +87,7 @@
                                 <span><%= activityLabel %></span>
                             <% } %>
                             <% if (item.createdAt) { %>
-                                <small> - <%= new Date(item.createdAt).toLocaleString() %></small>
+                                (<%= new Date(item.createdAt).toLocaleString() %>)
                             <% } %>
                         </li>
                     <% }) %>

@@ -10,7 +10,7 @@
 </head>
 <body>
     <%- include ('navbar') %>
-    <div id="review">
+    <div id="review-details">
         <% if (flashError && flashError.length > 0) { %>
             <p class="error"><i><%= flashError[0] %></i></p>
         <% } %>
@@ -38,7 +38,7 @@
         </ul>
         <% if (review.photo_path) { %>
             <h3>Photo</h3>
-            <img src="/uploads/<%= review.photo_path %>" alt="<%= review.photo_caption || ('Image of ' + review.location_name) %>" style="width:30%;"">
+            <img src="/uploads/<%= review.photo_path %>" alt="<%= ('Image of ' + review.location_name) %>" style="width:30%;">
             <% if (review.photo_caption) { %>
                 <p><%= review.photo_caption %></p>
             <% } %>
