@@ -474,9 +474,25 @@ app.post('/like', loginRequired, async (req, res) => {
   if (!review) return res.redirect('/reviews');
 
   const existingLike = await db.collection(LIKES).findOne({ userId: req.session.userId, rr });
+
+  // Remove like functionality
   if (existingLike) {
-    req.flash('error', 'You have already liked this review');
-    return res.redirect(`/review/${rr}`);
+    await db.collection(LIKES).deleteOne({
+    userId: req.session.userId,
+    rr
+  });
+
+  await recordHistory(db, buildHistoryEntry({
+    userId: req.session.userId,
+    action: 'review_unliked',
+    rr,
+    title: review.title,
+    location_name: review.location_name,
+    createdAt: new Date()
+  }));
+
+  await db.collection(REVIEWS).updateOne({ rr }, { $inc: { likeCount: -1 } });
+  return res.redirect(`/review/${rr}`);
   }
 
   await db.collection(LIKES).insertOne({
