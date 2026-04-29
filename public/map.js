@@ -1,5 +1,16 @@
 'use strict';
 
+// Simple escape HTML to prevent XSS attacks
+function escapeHtml(value) {
+    return String(value ?? '')
+    // map html with accompanying html entities
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 $(document).ready(function() {
     const map = L.map('map').setView([42.293243, -71.305604], 16); // set to Wellesley's campus
 
@@ -28,12 +39,12 @@ $(document).ready(function() {
             L.marker([xCoordinates, yCoordinates])
                 .addTo(map)
                 .bindPopup(
-                    `<b>${review.title}</b><br>
-                     <i>${review.location_name}</i><br>
-                     ${review.review}<br>
+                    `<b>${escapeHtml(review.title)}</b><br>
+                     <i>${escapeHtml(review.location_name)}</i><br>
+                     ${escapeHtml(review.review)}<br>
                      ${review.rating} stars<br>
-                     ${review.photo_path ? `<img src="/uploads/${review.photo_path}" style="width:70%;"><br>` : ''}
-                     <a href="/review/${review.rr}">View Details</a>`
+                     ${review.photo_path ? `<img src="/uploads/${encodeURIComponent(review.photo_path)}" style="width:70%;"><br>` : ''}
+                     <a href="/review/${encodeURIComponent(review.rr)}">View Details</a>`
                 );
     });
 
@@ -53,12 +64,12 @@ $(document).ready(function() {
                     L.marker([xCoordinates, yCoordinates])
                         .addTo(map)
                         .bindPopup(
-                            `<b>${review.title}</b><br>
-                             <i>${review.location_name}</i><br>
-                             ${review.review}<br>
+                               `<b>${escapeHtml(review.title)}</b><br>
+                                <i>${escapeHtml(review.location_name)}</i><br>
+                                ${escapeHtml(review.review)}<br>
                              ${review.rating} stars<br>
-                             ${review.photo_path ? `<img src="/uploads/${review.photo_path}" style="width:70%"><br>` : ''}
-                             <a href="/review/${review.rr}">View Details</a>`
+                                ${review.photo_path ? `<img src="/uploads/${encodeURIComponent(review.photo_path)}" style="width:70%"><br>` : ''}
+                                <a href="/review/${encodeURIComponent(review.rr)}">View Details</a>`
                         )
                         .openPopup();
             }

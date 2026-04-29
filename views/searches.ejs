@@ -30,7 +30,7 @@
         <% }%>
     </div>
     <script id="data" type="application/json">
-        <%- JSON.stringify(results) %>
+        <%- JSON.stringify(results).replace(/</g, '\\u003c') %>
     </script>
 </body>
 </html>

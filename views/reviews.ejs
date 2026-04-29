@@ -24,7 +24,7 @@
         </div>
     </div>
     <script id="data" type="application/json">
-        <%- JSON.stringify(reviews) %>
+        <%- JSON.stringify(reviews).replace(/</g, '\\u003c') %>
     </script>
 </body>
 </html>
