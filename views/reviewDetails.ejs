@@ -52,7 +52,7 @@
        <% } else {%>
             <form action="/like" method="POST">
                 <input type="hidden" name="rr" value="<%= review.rr %>">
-                <button type="submit">Like Review</button>
+                <button id="like-review-button" type="submit">Like/Unlike Review</button>
             </form>
     <% } %>
     </div>
@@ -64,7 +64,16 @@
     <% } %>
 
     <div id="comments">
-        <%- include ('comments') %>
+        <h1>Comments</h1> 
+        <button id="add-comment-button">Add Comment</button>
+        <div id="show-comment-form" style="display: none;">
+            <%- include('createComment') %>
+        </div>
+        <% if (comments.length === 0) { %>
+            <p>No comments found.</p>
+        <% } else { %>
+            <%- include ('comments') %>
+        <% } %>
     </div>
     <a href="/reviews">View all Reviews</a>
 </body>

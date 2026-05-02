@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wellesley Spots</title>
+    <title>Collections</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <%- include ('navbar') %>
     <main>
         <h1>My Collections</h1>
-
         <section class="profile-container">
             <h2>Reviews</h2>
             <% if (reviews && reviews.length) { %>
@@ -32,10 +31,9 @@
                 <ul>
                     <% comments.forEach(function(comment) { %>
                         <li>
-                            <strong><%= comment.location_name || comment.title || 'Comment' %></strong>
-                            <div><%= comment.comment || comment.text || comment.review || '' %></div>
+                            <a href="/review/<%= comment.rr %>"><%= comment.title || 'Comment' %></a>
                             <% if (comment.createdAt) { %>
-                                <small>Posted <%= new Date(comment.createdAt).toLocaleString() %></small>
+                                (posted <%= new Date(comment.createdAt).toLocaleString() %>)
                             <% } %>
                         </li>
                     <% }) %>
@@ -97,7 +95,6 @@
                 <p class="message">No recent activity yet.</p>
             <% } %>
         </section>
-
     </main>
 
 </body>

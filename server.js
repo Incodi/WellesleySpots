@@ -364,13 +364,16 @@ app.get('/review/:rr', loginRequired, async (req, res) => {
     let canEdit = true;
     const db = await Connection.open(mongoUri, DB);
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
+  
     if (!review) return res.redirect('/reviews');
     if (req.session.userId != review.userId) canEdit = false;
 
+    const comments = await db.collection(COMMENTS).find({ rr: rr }).sort({ createdAt: -1 }).toArray();
     return res.render('reviewDetails.ejs', { 
       review, canEdit,
       flashError: req.flash('error'),
-      flashInfo: req.flash('info')
+      flashInfo: req.flash('info'),
+      comments
     });
 });
 
@@ -443,27 +446,6 @@ app.get('/searches', loginRequired, async (req, res) => {
     });
 });
 
-// Retrieves reviews that fit search criteria including location, rating, and/or tag(s) 
-// and renders search page with results
-app.get('/search', loginRequired, async (req, res) => {
-    const { location, rating, filter_tags } = req.query;
-
-    const db = await Connection.open(mongoUri, DB);
-    const locations = await db.collection(REVIEWS).distinct('location_name', {});
-
-    let query = {};
-    if (location) query.location_name = location;
-    if (rating) query.rating = rating;
-
-    if (filter_tags) {
-        const tagsArray = Array.isArray(filter_tags) ? filter_tags : [filter_tags];
-        query.tags = { $in: tagsArray };
-    }
-
-    const results = await db.collection(REVIEWS).find(query).toArray();
-    return res.render('searches.ejs', { results, locations });
-});
-
 // Increments or initializes a like counter for a review
 // Users can only like a review once
 app.post('/like', loginRequired, async (req, res) => {
@@ -514,6 +496,71 @@ app.post('/like', loginRequired, async (req, res) => {
 
   await db.collection(REVIEWS).updateOne({ rr }, { $inc: { likeCount: 1 } });
   return res.redirect(`/review/${rr}`);
+});
+
+// Creates a comment for a particular review 
+app.post('/review/:rr/comment', loginRequired, async (req, res) => {
+  const rr = parseInt(req.params.rr);
+  const db = await Connection.open(mongoUri, DB);
+  const comment_counter = await counter.incr(db.collection(COUNTERS), COMMENTS);
+
+  const userId = req.session.userId || null;
+  const comment = {
+    cc: comment_counter,
+    rr: rr,
+    userId: userId,
+    username: req.session.username || null,
+    createdAt: new Date(),
+    comment: req.body.comment
+  };
+  await db.collection(COMMENTS).insertOne(comment);
+  return res.redirect(`/review/${rr}`);
+});
+
+// TODO: it
+// Delete a specific comment, only if user is author of the comment
+app.post('/review/:rr/comment/:cc/delete', loginRequired, async (req, res) => {
+    const rr = parseInt(req.params.rr);
+    const cc = parseInt(req.params.cc);
+    const db = await Connection.open(mongoUri, DB);
+    const comment = await db.collection(COMMENTS).findOne({ rr: rr, cc: cc });
+    if (req.session.userId != comment.userId) return res.redirect(`/review/${rr}`);
+
+    await db.collection(COMMENTS).deleteOne({ rr: rr, cc: cc });
+
+    return res.redirect(`/review/${rr}`);
+});
+
+// Retrieves reviews that fit search criteria including location, rating, and/or tag(s) 
+// and renders search page with results
+app.get('/search', loginRequired, async (req, res) => {
+    const { location, rating, filter_tags } = req.query;
+
+    const db = await Connection.open(mongoUri, DB);
+    const locations = await db.collection(REVIEWS).distinct('location_name', {});
+
+    let query = {};
+    if (location) query.location_name = location;
+    if (rating) query.rating = rating;
+
+    if (filter_tags) {
+        const tagsArray = Array.isArray(filter_tags) ? filter_tags : [filter_tags];
+        query.tags = { $in: tagsArray };
+    }
+
+    const results = await db.collection(REVIEWS).find(query).toArray();
+    return res.render('searches.ejs', { results, locations });
+});
+
+// Render search page with search form and existing locations for a dynamic dropdown filter in form
+app.get('/searches', loginRequired, async (req, res) => {
+    const db = await Connection.open(mongoUri, DB);
+    const locations = await db.collection(REVIEWS).distinct('location_name', {});
+
+    return res.render('searches.ejs', {
+        results: null,
+        locations
+    });
 });
 
 const serverPort = cs304.getPort(8080);
