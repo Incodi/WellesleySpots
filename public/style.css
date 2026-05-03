@@ -115,6 +115,11 @@ fieldset {
 	background-color: #fafafa;
 }
 
+.profile-container {
+	max-height: 300px;
+	overflow-y: scroll;
+}
+
 .signup-container {
 	float: left;
 	width: 45%;
