@@ -361,12 +361,10 @@ app.post('/reviews/', loginRequired, upload.single('photo'), async (req, res) =>
 // Render review details page for a specific review using on required parameter: rr (review ID)
 app.get('/review/:rr', loginRequired, async (req, res) => {
     const rr = parseInt(req.params.rr);
-    let canEdit = true;
     const db = await Connection.open(mongoUri, DB);
     const review = await db.collection(REVIEWS).findOne({ rr: rr });
-  
     if (!review) return res.redirect('/reviews');
-    if (req.session.userId != review.userId) canEdit = false;
+    let canEdit = (req.session.userId == review.userId);
 
     const comments = await db.collection(COMMENTS).find({ rr: rr }).sort({ createdAt: -1 }).toArray();
     return res.render('reviewDetails.ejs', { 
@@ -517,7 +515,7 @@ app.post('/review/:rr/comment', loginRequired, async (req, res) => {
   return res.redirect(`/review/${rr}`);
 });
 
-// TODO: it
+
 // Delete a specific comment, only if user is author of the comment
 app.post('/review/:rr/comment/:cc/delete', loginRequired, async (req, res) => {
     const rr = parseInt(req.params.rr);

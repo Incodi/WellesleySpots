@@ -1,6 +1,6 @@
 <form id="create-comment" method="POST" action="/review/<%= review.rr %>/comment">
     <p>Do not leave field empty.</p>
-    <p><label for="comment">Comment:<br><textarea cols="86" rows="5" required name="comment"></textarea></label></p>
+    <p><label for="comment_text">Comment:<br><textarea id="comment_text" cols="86" rows="5" required name="comment"></textarea></label></p>
     <p><button type="submit">Create Comment</button>
     <button id="cancel-comment-button">Cancel</button></p>
 </form>

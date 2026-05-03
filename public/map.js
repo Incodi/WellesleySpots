@@ -1,5 +1,8 @@
 'use strict';
 
+// using https://leafletjs.com/examples/quick-start/ as reference code for map implementation
+
+
 // Simple escape HTML to prevent XSS attacks
 function escapeHtml(value) {
     return String(value ?? '')

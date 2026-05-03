@@ -42,7 +42,8 @@
         <option value="natural light">natural light</option>
     </select>
     </label></p>
-    <p><label>Rating:
+    <fieldset>
+  <legend>Rating</legend>
         <span class="stars">
             <input type="radio" id="star5" name="rating" value="5" required/>
             <label for="star5" title="5 stars">&#9733;</label>
@@ -55,8 +56,8 @@
             <input type="radio" id="star1" name="rating" value="1"/>
             <label for="star1" title="1 star">&#9733;</label>
         </span>
-        </label>
-    </p>
+    </fieldset>
+
     <p><label>Photo of Location (max. 5 MB): <input type="file" accept="image/*" name="photo"></label></p>
     <p><label>Caption: <input type="text" name="photo_caption"></label></p>
     <p><input type="submit" value="Submit"></p>

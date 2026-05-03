@@ -1,13 +1,13 @@
 'use strict';
 
-// Flips review's state to either the view or update mode
+// Flips user's view of review's details to view of the update form and back
 function showReviewUpdate() {
     $('#change-review').toggle();
     $('#review-details').toggle();
     $('#click-changes-button').toggle()
 }
 
-// Flips comments container to either the view or create comment mode
+// Flips user's view of the comment section from just viewing to the add comment form and back
 function showCreateComment() {
     $('#show-comment-form').toggle();
     $('#add-comment-button').toggle()

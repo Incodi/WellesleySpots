@@ -1,8 +1,8 @@
-<form onsubmit="return !!(this.title.value || this.review.value || this.rating.value.trim() || this.location_name.value !== '' || this.tags.selectedOptions.length|| this.photo_caption.value || this.photo.files.length == 1)" method="POST" action="/review/<%= review.rr %>/update" enctype="multipart/form-data">
+<form method="POST" action="/review/<%= review.rr %>/update" enctype="multipart/form-data">
     <p>Enter at least one change in any field to update your review.</p>
-    <p><label>Title: <input type="text" placeholder="<%= review.title %>" name="title"></label></p>
-    <p><label>Location Area:
-        <select name="location_name">
+    <p><label>Title: <input type="text" placeholder="<%= review.title %>" value="<%= review.title %>" name="title"></label></p>
+    <p><label for="location_name">Location Area:
+        <select id="location_name" name="location_name">
             <option value="" disabled selected>Select location</option>
             <option value="Science Center">Science Center</option>
             <option value="Lulu">Lulu</option>
@@ -27,9 +27,9 @@
             <option value="Other">Other</option>
         </select>
     </label></p>
-    <p><label>Review:<br><textarea placeholder="<%= review.review %>" cols="50" rows="10" name="review"></textarea></label></p>
+    <p><label for="review_text">Review:<br><textarea id="review_text" placeholder="<%= review.review %>" cols="50" rows="10" name="review"><%= review.review %></textarea></label></p>
     <p><label for="tags">Tags:</label></p>
-    <select name="tags" multiple>
+    <select id="tags" name="tags" multiple>
         <option value="noisy">loud</option>
         <option value="quiet">quiet</option>
         <option value="empty">empty</option>
@@ -39,11 +39,11 @@
     </select>
     </label>
     <p><label>Rating:
-            <input class="numbers" type="number" placeholder="<%= review.rating %>" name="rating" step="1" min="1" max="5">
+            <input class="numbers" type="number" value="<%= review.rating %>" placeholder="<%= review.rating %>" name="rating" step="1" min="1" max="5">
         </label>
     </p>
     <p><label>Photo of Location (max. 5 MB): <input type="file" accept="image/*" name="photo"></label></p>
-    <p><label>Caption: <input type="text" name="photo_caption"></label></p>
+    <p><label>Caption: <input type="text" value="<%= review.photo_caption %>" name="photo_caption"></label></p>
     <p><button type="submit" class="save-changes-button">Save Changes</button>
     <button id="cancel-changes-button">Cancel</button></p>
 </form>

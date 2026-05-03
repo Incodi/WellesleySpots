@@ -1,10 +1,10 @@
 HTML {
-    --color-green: #69961b;
-    --color-green-dark: #205600;
+    --color-green: #4d7900;
+    --color-green-dark: #1b4900;
     --color-green-light: #eaffd1;
     --color-green-link: #dafdad;
 	--color-orange: #ff9900;
-	--color-orange-dark: #e68a00;
+	--color-orange-dark: #db8300;
 	--color-red: #cd3333;
 	--color-red-dark: #a01818;
     --font-family: Helvetica;
@@ -35,6 +35,10 @@ button {
 
 button:hover {
 	background-color: var(--color-orange-dark);
+}
+
+fieldset {
+  border: none;
 }
 
 /* navbar */
