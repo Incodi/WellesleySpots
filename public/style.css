@@ -116,8 +116,64 @@ fieldset {
 }
 
 .profile-container {
-	max-height: 300px;
-	overflow-y: scroll;
+	max-width: 600px;
+}
+
+.account-settings-container {
+	margin-top: 15px;
+	padding: 15px;
+	border: 1px solid #dddddd;
+	background-color: #fafafa;
+	max-width: 600px;
+}
+
+.forgot-password-container {
+	margin-top: 15px;
+	padding: 15px;
+	border: 1px solid #dddddd;
+	background-color: #fafafa;
+	max-width: 600px;
+}
+
+.account-settings-container .form-group {
+	margin-bottom: 1em;
+}
+
+.forgot-password-container .form-group {
+	margin-bottom: 1em;
+}
+
+.account-settings-container label {
+	display: block;
+	margin-bottom: .35em;
+	font-weight: 600;
+}
+
+.forgot-password-container label {
+	display: block;
+	margin-bottom: .35em;
+	font-weight: 600;
+}
+
+.account-settings-container input[type="password"] {
+	display: block;
+	width: 100%;
+	max-width: 360px;
+}
+
+.forgot-password-container input[type="email"] {
+	display: block;
+	width: 100%;
+	max-width: 360px;
+}
+
+.auth-link-row {
+	margin-top: 1em;
+}
+
+.auth-link-row a {
+	color: var(--color-green-dark);
+	font-weight: 600;
 }
 
 .signup-container {
@@ -143,6 +199,14 @@ fieldset {
 .message {
 	margin-top: 10px;
 	font-weight: bold;
+}
+
+.message-error {
+	color: var(--color-red);
+}
+
+.message-success {
+	color: var(--color-green);
 }
 
 /* comments */
@@ -262,3 +326,4 @@ select option:checked {
 .stars label:hover, .stars label:hover ~ label, .stars input[type="radio"]:checked ~ label {
 	color: #ffd84d;
 }
+

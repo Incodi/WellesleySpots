@@ -259,6 +259,144 @@ app.get('/profile', loginRequired, (req, res) => {
   });
 });
 
+// Render account settings page
+app.get('/account-settings', loginRequired, (req, res) => {
+  return res.render('account-settings', {
+    currentPath: '/account-settings',
+    userId: req.session.userId,
+    username: req.session.username || null,
+    email: req.session.email || null,
+    flashError: req.flash('error'),
+    flashInfo: req.flash('info')
+  });
+});
+
+// Handle password reset for logged-in users
+app.post('/reset-password', loginRequired, async (req, res) => {
+  const currentPassword = String(req.body.currentPassword || '').trim();
+  const newPassword = String(req.body.newPassword || '').trim();
+  const confirmPassword = String(req.body.confirmPassword || '').trim();
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    req.flash('error', 'All password fields are required.');
+    return res.redirect('/account-settings');
+  }
+
+  if (newPassword !== confirmPassword) {
+    req.flash('error', 'New passwords do not match.');
+    return res.redirect('/account-settings');
+  }
+
+  const passwordRegex = /^[A-Za-z\d@$!%*?&]{8,}$/; // Min 8 chars, specific symbols allowed
+  if (!passwordRegex.test(newPassword)) {
+    req.flash('error', 'New password must be at least 8 characters and contain only letters, numbers, and these symbols: @$!%*?&');
+    return res.redirect('/account-settings');
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const usersCol = db.collection(USERS);
+  const user = await usersCol.findOne({ _id: new (require('mongodb')).ObjectId(req.session.userId) });
+
+  if (!user) {
+    req.flash('error', 'User not found.');
+    return res.redirect('/account-settings');
+  }
+
+  // Verify current password
+  const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!passwordMatch) {
+    req.flash('error', 'Current password is incorrect.');
+    return res.redirect('/account-settings');
+  }
+
+  // Hash new password and update
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await usersCol.updateOne({ _id: new (require('mongodb')).ObjectId(req.session.userId) }, { $set: { password: hashedPassword } });
+
+  req.flash('info', 'Password updated successfully.');
+  return res.redirect('/account-settings');
+});
+
+// Handle account deletion for logged-in users
+app.post('/delete-account', loginRequired, async (req, res) => {
+  const password = String(req.body.password || '').trim();
+
+  if (!password) {
+    req.flash('error', 'Password is required for account deletion.');
+    return res.redirect('/account-settings');
+  }
+
+  const db = await Connection.open(mongoUri, DB);
+  const usersCol = db.collection(USERS);
+  const user = await usersCol.findOne({ _id: new (require('mongodb')).ObjectId(req.session.userId) });
+
+  if (!user) {
+    req.flash('error', 'User not found.');
+    return res.redirect('/account-settings');
+  }
+
+  // Verify password
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    req.flash('error', 'Password is incorrect. Account was not deleted.');
+    return res.redirect('/account-settings');
+  }
+
+  const userId = req.session.userId;
+
+  // Delete all user data
+  await Promise.all([
+    usersCol.deleteOne({ _id: new (require('mongodb')).ObjectId(userId) }),
+    db.collection(REVIEWS).deleteMany({ userId: userId }),
+    db.collection(COMMENTS).deleteMany({ userId: userId }),
+    db.collection(LIKES).deleteMany({ userId: userId }),
+    db.collection(HISTORY).deleteMany({ userId: userId })
+  ]);
+
+  // Set flash message BEFORE clearing session
+  req.flash('info', 'Your account and all associated data have been permanently deleted.');
+  
+  // Clear session after setting flash
+  req.session = null;
+  
+  return res.redirect('/signup');
+});
+
+//Make a forgot password page.
+app.get('/forgot-password', (req, res) => {
+  return res.render('forgot-password', {
+    currentPath: '/forgot-password',
+    userId: req.session.userId || null,
+    flashError: req.flash('error'),
+    flashInfo: req.flash('info')
+  });
+});
+
+// Handle password reset requests
+app.post('/forgot-password', async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+
+  if (!email) {
+    req.flash('error', 'Email is required.');
+    return res.redirect('/forgot-password');
+  }
+
+  if (!isValidEmail(email)) {
+    req.flash('error', 'Please enter a valid email address.');
+    return res.redirect('/forgot-password');
+  }
+
+  if (!isWellesleyEmail(email)) {
+    req.flash('error', 'Use your Wellesley email address ending in @wellesley.edu. just use your Wellesley email address.');
+    return res.redirect('/forgot-password');
+  }
+
+  // In a real application, we would send an email to the user with instructions to reset their password.
+  // For this implementation, we'll just flash a message indicating that a reset link has been sent.
+  req.flash('info', 'If an account with that email exists, a password reset link has been sent.');
+  return res.redirect('/forgot-password');
+});
+
 // Retrieves user's relevant data, including reviews they've created and liked in one page
 app.get('/collections', loginRequired, async (req, res) => { // redirects to signup if no user ID
 
