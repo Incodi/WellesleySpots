@@ -366,7 +366,14 @@ app.get('/review/:rr', loginRequired, async (req, res) => {
     if (!review) return res.redirect('/reviews');
     let canEdit = (req.session.userId == review.userId);
 
-    const comments = await db.collection(COMMENTS).find({ rr: rr }).sort({ createdAt: -1 }).toArray();
+    let comments = await db.collection(COMMENTS).find({ rr: rr }).sort({ createdAt: -1 }).toArray();
+    comments = comments.map(comment => {
+      return {
+        ...comment,
+        canDeleteComment: req.session.userId == comment.userId
+      };
+    });
+
     return res.render('reviewDetails.ejs', { 
       review, canEdit,
       flashError: req.flash('error'),
@@ -431,17 +438,6 @@ app.post('/review/:rr/delete', loginRequired, async (req, res) => {
     await db.collection(REVIEWS).deleteOne({ rr: rr });
 
     return res.redirect('/reviews');
-});
-
-// Render search page with search form and existing locations for a dynamic dropdown filter in form
-app.get('/searches', loginRequired, async (req, res) => {
-    const db = await Connection.open(mongoUri, DB);
-    const locations = await db.collection(REVIEWS).distinct('location_name', {});
-
-    return res.render('searches.ejs', {
-        results: null,
-        locations
-    });
 });
 
 // Increments or initializes a like counter for a review
@@ -515,7 +511,6 @@ app.post('/review/:rr/comment', loginRequired, async (req, res) => {
   return res.redirect(`/review/${rr}`);
 });
 
-
 // Delete a specific comment, only if user is author of the comment
 app.post('/review/:rr/comment/:cc/delete', loginRequired, async (req, res) => {
     const rr = parseInt(req.params.rr);
@@ -527,6 +522,17 @@ app.post('/review/:rr/comment/:cc/delete', loginRequired, async (req, res) => {
     await db.collection(COMMENTS).deleteOne({ rr: rr, cc: cc });
 
     return res.redirect(`/review/${rr}`);
+});
+
+// Render search page with search form and existing locations for a dynamic dropdown filter in form
+app.get('/searches', loginRequired, async (req, res) => {
+    const db = await Connection.open(mongoUri, DB);
+    const locations = await db.collection(REVIEWS).distinct('location_name', {});
+
+    return res.render('searches.ejs', {
+        results: null,
+        locations
+    });
 });
 
 // Retrieves reviews that fit search criteria including location, rating, and/or tag(s) 

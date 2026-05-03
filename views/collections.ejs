@@ -31,7 +31,11 @@
                 <ul>
                     <% comments.forEach(function(comment) { %>
                         <li>
-                            <a href="/review/<%= comment.rr %>"><%= comment.title || 'Comment' %></a>
+                            <% if (comment.rr && comment.comment) { %>
+                                <a href="/review/<%= comment.rr %>"><%= comment.comment || 'Comment' %></a>
+                            <% } else { %>
+                                <%= comment.comment || 'Comment' %>
+                            <% } %>
                             <% if (comment.createdAt) { %>
                                 (posted <%= new Date(comment.createdAt).toLocaleString() %>)
                             <% } %>

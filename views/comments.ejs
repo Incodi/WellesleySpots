@@ -3,7 +3,7 @@
     <h2>By <%= comment.username || 'Anonymous' %></h2>
     <h3>Posted on <%= comment.createdAt ? new Date(comment.createdAt).toLocaleDateString() : 'Unknown date' %></h3>
     <p><%= comment.comment %></p>
-    <% if (canEdit) { %>
+    <% if (comment.canDeleteComment) { %>
         <form id="delete-comment" action="/review/<%= review.rr %>/comment/<%= comment.cc %>/delete" method="POST">
             <button type="submit" class="delete-button">Delete Comment</button>
         </form>
