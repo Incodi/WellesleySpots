@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - Wellesley Spots</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <%- include ('navbar') %>
+
+    <main>
+        <h1>Account Settings</h1>
+        
+        <% if (flashError && flashError.length > 0) { %>
+            <div class="message" style="color: var(--color-red);">
+                <% flashError.forEach(error => { %>
+                    <%= error %><br>
+                <% }); %>
+            </div>
+        <% } %>
+        <% if (flashInfo && flashInfo.length > 0) { %>
+            <div class="message" style="color: var(--color-green);">
+                <% flashInfo.forEach(info => { %>
+                    <%= info %><br>
+                <% }); %>
+            </div>
+        <% } %>
+
+        <div class="account-settings-container">
+            <h2>Reset Password</h2>
+            <form action="/reset-password" method="post">
+                <fieldset>
+
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password:</label>
+                        <input 
+                            type="password" 
+                            id="currentPassword" 
+                            name="currentPassword" 
+                            placeholder="Enter your current password"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">New Password:</label>
+                        <input 
+                            type="password" 
+                            id="newPassword" 
+                            name="newPassword" 
+                            placeholder="Enter new password (min 8 characters)"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password:</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            placeholder="Confirm new password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit">Update Password</button>
+                </fieldset>
+            </form>
+
+            <h2 style="margin-top: 2em;">Delete Account</h2>
+            <form action="/delete-account" method="post">
+                <fieldset>
+
+                    <p style="color: var(--color-red); font-weight: bold;">
+                        Warning: This action cannot be undone. All your reviews, comments, and data will be deleted.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="passwordConfirm">Enter your password to confirm deletion:</label>
+                        <input 
+                            type="password" 
+                            id="passwordConfirm" 
+                            name="password" 
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">Delete My Account</button>
+                </fieldset>
+            </form>
+        </div>
+
+    </main>
+</body>
+</html>
