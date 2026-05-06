@@ -271,6 +271,15 @@ app.get('/account-settings', loginRequired, (req, res) => {
   });
 });
 
+// Backward-compatible entry point for password resets.
+app.get('/reset-password', (req, res) => {
+  if (req.session.userId) {
+    return res.redirect('/account-settings');
+  }
+
+  return res.redirect('/forgot-password');
+});
+
 // Handle password reset for logged-in users
 app.post('/reset-password', loginRequired, async (req, res) => {
   const currentPassword = String(req.body.currentPassword || '').trim();
