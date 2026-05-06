@@ -116,7 +116,10 @@ fieldset {
 }
 
 .profile-container {
-	max-width: 600px;
+	max-height: 300px;
+	overflow-y: scroll;
+	max-width: 	1000px;
+
 }
 
 .account-settings-container {
