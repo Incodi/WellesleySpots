@@ -62,6 +62,7 @@ function isWellesleyEmail(email) {
   return String(email || '').trim().toLowerCase().endsWith('@wellesley.edu');
 }
 
+// for our collections page
 function buildHistoryEntry({ userId, action, rr, title, location_name, createdAt }) {
   return {
     userId,
@@ -73,11 +74,12 @@ function buildHistoryEntry({ userId, action, rr, title, location_name, createdAt
   };
 }
 
+// for our collections page
 async function recordHistory(db, entry) {
   await db.collection(HISTORY).insertOne(entry);
 }
 
-/// Generate string for a photo's file path using a date
+// Generate string for a photo's file path using a date
 function timeString(dateObj) {
   if( !dateObj) dateObj = new Date();
   // convert val to two-digit string
@@ -242,8 +244,7 @@ app.post('/login', async (req, res) => {
   return res.redirect('/home');
 });
 
-// Handle user logout
-// Turn session into null to clear all session data and log the user out
+// Turns session into null to clear all session data and log the user out
 app.post('/logout', (req, res) => {
   req.session = null;
   return res.redirect('/signup');
@@ -271,7 +272,17 @@ app.get('/account-settings', loginRequired, (req, res) => {
   });
 });
 
-// Backward-compatible entry point for password resets.
+// Render the forgot password page for logged out users
+app.get('/forgot-password', (req, res) => {
+  return res.render('forgot-password', {
+    currentPath: '/forgot-password',
+    userId: req.session.userId || null,
+    flashError: req.flash('error'),
+    flashInfo: req.flash('info')
+  });
+});
+
+// Backward-compatible entry point for password resets
 app.get('/reset-password', (req, res) => {
   if (req.session.userId) {
     return res.redirect('/account-settings');
@@ -280,7 +291,7 @@ app.get('/reset-password', (req, res) => {
   return res.redirect('/forgot-password');
 });
 
-// Handle password reset for logged-in users
+// Completes a password reset for logged-in users
 app.post('/reset-password', loginRequired, async (req, res) => {
   const currentPassword = String(req.body.currentPassword || '').trim();
   const newPassword = String(req.body.newPassword || '').trim();
@@ -296,7 +307,7 @@ app.post('/reset-password', loginRequired, async (req, res) => {
     return res.redirect('/account-settings');
   }
 
-  const passwordRegex = /^[A-Za-z\d@$!%*?&]{8,}$/; // Min 8 chars, specific symbols allowed
+  const passwordRegex = /^[A-Za-z\d@$!%*?&]{8,}$/; // Min 8 chars, only specific symbols allowed
   if (!passwordRegex.test(newPassword)) {
     req.flash('error', 'New password must be at least 8 characters and contain only letters, numbers, and these symbols: @$!%*?&');
     return res.redirect('/account-settings');
@@ -371,17 +382,7 @@ app.post('/delete-account', loginRequired, async (req, res) => {
   return res.redirect('/signup');
 });
 
-//Make a forgot password page.
-app.get('/forgot-password', (req, res) => {
-  return res.render('forgot-password', {
-    currentPath: '/forgot-password',
-    userId: req.session.userId || null,
-    flashError: req.flash('error'),
-    flashInfo: req.flash('info')
-  });
-});
-
-// Handle password reset requests
+// Simulates process for reset password requests for logged out users
 app.post('/forgot-password', async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
 
@@ -400,14 +401,14 @@ app.post('/forgot-password', async (req, res) => {
     return res.redirect('/forgot-password');
   }
 
-  // In a real application, we would send an email to the user with instructions to reset their password.
-  // For this implementation, we'll just flash a message indicating that a reset link has been sent.
+  // In a real application, we would send an email to the user with instructions to reset their password
+  // For this implementation, we decided to just flash a message indicating a reset link has been sent
   req.flash('info', 'If an account with that email exists, a password reset link has been sent.');
   return res.redirect('/forgot-password');
 });
 
 // Retrieves user's relevant data, including reviews they've created and liked in one page
-app.get('/collections', loginRequired, async (req, res) => { // redirects to signup if no user ID
+app.get('/collections', loginRequired, async (req, res) => {
 
   const db = await Connection.open(mongoUri, DB);
   const userId = req.session.userId;
@@ -551,7 +552,7 @@ app.post('/review/:rr/update', loginRequired, upload.single('photo'), async (req
       }
     }
 
-    if (req.file) fields.photo_path = req.file.filename;
+    if (req.file) fields.photo_path = req.file.filename; // since photo uploading was optional
 
     if (Object.keys(fields).length === 0) {
       req.flash('error', 'Please provide at least one change before saving.');
@@ -587,8 +588,8 @@ app.post('/review/:rr/delete', loginRequired, async (req, res) => {
     return res.redirect('/reviews');
 });
 
-// Increments or initializes a like counter for a review
-// Users can only like a review once
+// Increments, decerements, or initializes a like counter for a review
+// If user has already liked a review, it removes their like
 app.post('/like', loginRequired, async (req, res) => {
   const rr = parseInt(req.body.rr);  
   const db = await Connection.open(mongoUri, DB);
@@ -640,6 +641,7 @@ app.post('/like', loginRequired, async (req, res) => {
 });
 
 // Creates a comment for a particular review 
+// Both the author of the review and other users can comment
 app.post('/review/:rr/comment', loginRequired, async (req, res) => {
   const rr = parseInt(req.params.rr);
   const db = await Connection.open(mongoUri, DB);
@@ -671,7 +673,7 @@ app.post('/review/:rr/comment/:cc/delete', loginRequired, async (req, res) => {
     return res.redirect(`/review/${rr}`);
 });
 
-// Render search page with search form and existing locations for a dynamic dropdown filter in form
+// Render search page with search form and existing locations for a dynamic dropdown filter in search form
 app.get('/searches', loginRequired, async (req, res) => {
     const db = await Connection.open(mongoUri, DB);
     const locations = await db.collection(REVIEWS).distinct('location_name', {});
@@ -701,17 +703,6 @@ app.get('/search', loginRequired, async (req, res) => {
 
     const results = await db.collection(REVIEWS).find(query).toArray();
     return res.render('searches.ejs', { results, locations });
-});
-
-// Render search page with search form and existing locations for a dynamic dropdown filter in form
-app.get('/searches', loginRequired, async (req, res) => {
-    const db = await Connection.open(mongoUri, DB);
-    const locations = await db.collection(REVIEWS).distinct('location_name', {});
-
-    return res.render('searches.ejs', {
-        results: null,
-        locations
-    });
 });
 
 const serverPort = cs304.getPort(8080);

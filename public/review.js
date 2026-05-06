@@ -1,6 +1,6 @@
 'use strict';
 
-// Flips user's view of review's details to view of the update form and back
+// Flips user's view of review's details page to view of the update form and back
 function showReviewUpdate() {
     $('#change-review').toggle();
     $('#review-details').toggle();
