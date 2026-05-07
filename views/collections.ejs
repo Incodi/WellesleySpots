@@ -81,6 +81,7 @@
                             <% if (action === 'review_created') actionLabel = 'Reviewed:'; %>
                             <% if (action === 'review_edited') actionLabel = 'Edited review:'; %>
                             <% if (action === 'review_liked') actionLabel = 'Liked review:'; %>
+                            <% if (action === 'comment_created') actionLabel = 'Commented on:'; %>
                             <% if (action === 'review_unliked') actionLabel = 'Removed like from review:'; %>
                             <% const activityLabel = item.title || (item.rr ? ('Review #' + item.rr) : ''); %>
                             <strong><%= actionLabel %></strong>
