@@ -17,7 +17,7 @@ To add, the witty and interesting comments in Tripadvisor were one of the bigges
 
 ## Status
 
-WellesleySpots is near completion. As it currently stands, we support review creation, deletion, and modification, as well as liking reviews. Users also have the ability to search for other reviews and like them. In a collections page, users can also keep track of their recent actions and view their content in one page. We currently need to add comments, support unliking a review, and support stronger profile customization options such as resetting passwords. 
+WellesleySpots is at completion. As it stands, we support review creation, deletion, and modification, as well as liking reviews and commenting on reviews. Users also have the ability to filter existing reviews based on tags, location, and rating. In the collections page, users can also keep track of their recent actions and view their content in one page. 
 
 ## Directions for use 
 
@@ -30,7 +30,10 @@ WellesleySpots is near completion. As it currently stands, we support review cre
 - Upon form submission, you will be redirected to your newly created review
 4. Modify and/or delete your review
 - Users cannot update coordinates
-5. Search for other reviews under Review → Search Reviews element in navigation bar 
+6. Search for other reviews under Review → Search Reviews element in navigation bar 
 - Can fill out any field as long as at least one is filled out
-6. Can like other reviews
-7. Find your own reviews and liked reviews in Collections page, as well as a log of your actions
+7. Can like other reviews
+- Cannot like a review twice
+7. Can comment on reviews
+- Can only delete your own comment
+9. Find your own reviews, comments, and liked reviews in Collections page, as well as a log of your actions
